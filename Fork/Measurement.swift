@@ -13,64 +13,109 @@ enum scheme {
     case metric
 }
 
-enum unit {
+//Metric Units
+enum mUnit{
     case none
     case mL
     case L
-    case tbsp
-    case tsp
+    case whole
+    case g
+    case kg
+
+}
+
+//Standard Units
+enum sUnit{
+    case none
+    case tablespoon
+    case teaspoon
     case cup
     case pint
     case gallon
     case whole
-    case g
-    case kg
-    case oz
+    case ounce //Dry Ounce not Fluid Ounce
+    case pound
 }
 
 class Measurement {
-    var amount: Double = 0
-    var currentScheme: scheme = scheme.standard
-    var currentUnit: unit = unit.none
+    var metricAmount: Double = 0
+    var metricUnit: mUnit = mUnit.none
+    var standardAmount: Double = 0
+    var standardUnit: sUnit = sUnit.none
+    var currentScheme: scheme
     
-    //Converts amounts from Metric to Standard or vice versa
+    init(mAmount: Double, mUnits: mUnit){
+        metricAmount = mAmount
+        metricUnit = mUnits
+        currentScheme = .metric
+        convertUnits()
+    }
+    
+    init(sAmount: Double, sUnits: sUnit){
+        standardAmount = sAmount
+        standardUnit = sUnits
+        currentScheme = .standard
+        convertUnits()
+    }
+    
     func convertUnits(){
         switch self.currentScheme{
         case .standard:
-            switch self.currentUnit{
-            case .tbsp:
-                self.amount *= 14.7868
+            switch standardUnit{
+            case .teaspoon: // teaspoons ---> milliliters
+                metricAmount = standardAmount * 4.9289166908532360267
+                metricUnit = .mL
                 break
-            case .tsp:
+            case .tablespoon: // tablespoons ---> milliliters
+                metricAmount = standardAmount * 14.786754853806497678
+                metricUnit = .mL
                 break
-            case .cup:
+            case .cup: // cups ---> milliliters
+                metricAmount = standardAmount * 236.58807766090396285
+                metricUnit = .mL
                 break
-            case .pint:
+            case .pint: // pints ---> liters
+                metricAmount = standardAmount * 0.47317615532180790083
+                metricUnit = .L
                 break
-            case .gallon:
+            case .gallon: // gallons ---> liters
+                metricAmount = standardAmount * 3.7854092425744632067
+                metricUnit = .L
                 break
-            case .oz:
+            case .ounce: // dry ounces ---> grams
+                metricAmount = standardAmount * 28.349500000010491
+                metricUnit = .g
+                break
+            case .pound: // pounds ---> kilograms
+                metricAmount = standardAmount * 0.453592
+                metricUnit = .kg
                 break
             default:
                 break
             }
+            self.currentScheme = .metric
         case .metric:
-            switch self.currentUnit{
-                case .tbsp:
-                break
-                case .tsp:
-                break
-                case .cup:
-                break
-                case .pint:
-                break
-                case .gallon:
-                break
-                case .oz:
-                break
+            switch metricUnit{
+                case .mL: // milliliters ---> cups
+                    standardAmount = metricAmount * 0.0042267500000001054228
+                    standardUnit = .cup
+                    break
+                case .L: // liters ---> pints
+                    standardAmount = metricAmount * 2.11337500000005285
+                    standardUnit = .pint
+                    break
+                case .g: // grams ---> ounces
+                    standardAmount = metricAmount * 0.035274
+                    standardUnit = .ounce
+                    break
+                case .kg: // kilograms ---> pounds
+                    standardAmount = metricAmount * 2.20462
+                    standardUnit = .pound
+                    break
                 default:
-                break
-            }
+                    break
+                }
+            self.currentScheme = .standard
         }
     }
 }
