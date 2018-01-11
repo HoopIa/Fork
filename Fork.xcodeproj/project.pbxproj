@@ -15,6 +15,11 @@
 		12AEA1FF20066E97002844F4 /* ForkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12AEA1FE20066E97002844F4 /* ForkTests.swift */; };
 		12AEA20A20066E97002844F4 /* ForkUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12AEA20920066E97002844F4 /* ForkUITests.swift */; };
 		12B59F9D20067A76008D2C63 /* Ingredient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12B59F9C20067A76008D2C63 /* Ingredient.swift */; };
+		12F835312006C9A100F8C140 /* Recipe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12F835302006C9A100F8C140 /* Recipe.swift */; };
+		12F835332007BD4300F8C140 /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12F835322007BD4300F8C140 /* Task.swift */; };
+		12F835352007E41B00F8C140 /* Tool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12F835342007E41B00F8C140 /* Tool.swift */; };
+		12F835372007E5DD00F8C140 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12F835362007E5DD00F8C140 /* User.swift */; };
+		12F835392007E79200F8C140 /* Repo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12F835382007E79200F8C140 /* Repo.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,6 +54,11 @@
 		12AEA20920066E97002844F4 /* ForkUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForkUITests.swift; sourceTree = "<group>"; };
 		12AEA20B20066E97002844F4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		12B59F9C20067A76008D2C63 /* Ingredient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Ingredient.swift; sourceTree = "<group>"; };
+		12F835302006C9A100F8C140 /* Recipe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Recipe.swift; sourceTree = "<group>"; };
+		12F835322007BD4300F8C140 /* Task.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
+		12F835342007E41B00F8C140 /* Tool.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tool.swift; sourceTree = "<group>"; };
+		12F835362007E5DD00F8C140 /* User.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
+		12F835382007E79200F8C140 /* Repo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Repo.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -105,7 +115,12 @@
 				12AEA1F020066E97002844F4 /* Assets.xcassets */,
 				12AEA1F220066E97002844F4 /* LaunchScreen.storyboard */,
 				12AEA1F520066E97002844F4 /* Info.plist */,
+				12F835302006C9A100F8C140 /* Recipe.swift */,
 				12B59F9C20067A76008D2C63 /* Ingredient.swift */,
+				12F835322007BD4300F8C140 /* Task.swift */,
+				12F835342007E41B00F8C140 /* Tool.swift */,
+				12F835362007E5DD00F8C140 /* User.swift */,
+				12F835382007E79200F8C140 /* Repo.swift */,
 			);
 			path = Fork;
 			sourceTree = "<group>";
@@ -267,7 +282,12 @@
 			files = (
 				12AEA1EC20066E97002844F4 /* ViewController.swift in Sources */,
 				12AEA1EA20066E97002844F4 /* AppDelegate.swift in Sources */,
+				12F835332007BD4300F8C140 /* Task.swift in Sources */,
+				12F835392007E79200F8C140 /* Repo.swift in Sources */,
+				12F835352007E41B00F8C140 /* Tool.swift in Sources */,
 				12B59F9D20067A76008D2C63 /* Ingredient.swift in Sources */,
+				12F835312006C9A100F8C140 /* Recipe.swift in Sources */,
+				12F835372007E5DD00F8C140 /* User.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -2,7 +2,11 @@
 //  Ingredient.swift
 //  Fork
 //
-//  Created by Jacob Williamson on 1/10/18.
+//  Each ingredient included in a recipe. This also has functionality to convert 
+//  between strandard and metric. Unfortunately given the irregular nature of the
+//  standard system, the most "clean" way of conversion is a lot of switch-cases.
+//  It's not pretty, but neither is the standard system. Blame America or something.
+//
 //  Copyright © 2018 Jacob Williamson. All rights reserved.
 //
 
@@ -24,17 +28,6 @@ enum mUnit{
     
 }
 
-enum allergen{
-    case milk
-    case eggs
-    case peanuts
-    case treenuts
-    case soy
-    case gluten
-    case fish
-    case shellfish
-}
-
 //Standard Units
 enum sUnit{
     case none
@@ -47,6 +40,19 @@ enum sUnit{
     case ounce //Dry Ounce not Fluid Ounce
     case pound
 }
+
+//Allergens
+enum allergen{
+    case milk
+    case eggs
+    case peanuts
+    case treenuts
+    case soy
+    case gluten
+    case fish
+    case shellfish
+}
+
 
 class Ingredient{
     var name: String = ""
