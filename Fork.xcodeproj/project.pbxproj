@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1229778520081A3000F117BA /* RecipeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1229778420081A3000F117BA /* RecipeViewController.swift */; };
 		12AEA1EA20066E97002844F4 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12AEA1E920066E97002844F4 /* AppDelegate.swift */; };
 		12AEA1EC20066E97002844F4 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12AEA1EB20066E97002844F4 /* ViewController.swift */; };
 		12AEA1EF20066E97002844F4 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 12AEA1ED20066E97002844F4 /* Main.storyboard */; };
@@ -15,14 +16,13 @@
 		12AEA1FF20066E97002844F4 /* ForkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12AEA1FE20066E97002844F4 /* ForkTests.swift */; };
 		12AEA20A20066E97002844F4 /* ForkUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12AEA20920066E97002844F4 /* ForkUITests.swift */; };
 		12B59F9D20067A76008D2C63 /* Ingredient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12B59F9C20067A76008D2C63 /* Ingredient.swift */; };
+		12CA2D7D20080CB4006C32C6 /* LineChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12CA2D7C20080CB4006C32C6 /* LineChart.swift */; };
 		12F835312006C9A100F8C140 /* Recipe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12F835302006C9A100F8C140 /* Recipe.swift */; };
 		12F835332007BD4300F8C140 /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12F835322007BD4300F8C140 /* Task.swift */; };
 		12F835352007E41B00F8C140 /* Tool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12F835342007E41B00F8C140 /* Tool.swift */; };
 		12F835372007E5DD00F8C140 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12F835362007E5DD00F8C140 /* User.swift */; };
 		12F835392007E79200F8C140 /* Repo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12F835382007E79200F8C140 /* Repo.swift */; };
 		12F8353D2007F75B00F8C140 /* RepoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12F8353C2007F75B00F8C140 /* RepoViewController.swift */; };
-		12F835422007F86800F8C140 /* ProgressGraph.xib in Resources */ = {isa = PBXBuildFile; fileRef = 12F835412007F86800F8C140 /* ProgressGraph.xib */; };
-		12F835462007F90800F8C140 /* ProgressGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12F835452007F90800F8C140 /* ProgressGraph.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -43,6 +43,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1229778420081A3000F117BA /* RecipeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecipeViewController.swift; sourceTree = "<group>"; };
 		12AEA1E620066E97002844F4 /* Fork.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Fork.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		12AEA1E920066E97002844F4 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		12AEA1EB20066E97002844F4 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -57,14 +58,13 @@
 		12AEA20920066E97002844F4 /* ForkUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForkUITests.swift; sourceTree = "<group>"; };
 		12AEA20B20066E97002844F4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		12B59F9C20067A76008D2C63 /* Ingredient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Ingredient.swift; sourceTree = "<group>"; };
+		12CA2D7C20080CB4006C32C6 /* LineChart.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LineChart.swift; sourceTree = "<group>"; };
 		12F835302006C9A100F8C140 /* Recipe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Recipe.swift; sourceTree = "<group>"; };
 		12F835322007BD4300F8C140 /* Task.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
 		12F835342007E41B00F8C140 /* Tool.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tool.swift; sourceTree = "<group>"; };
 		12F835362007E5DD00F8C140 /* User.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		12F835382007E79200F8C140 /* Repo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Repo.swift; sourceTree = "<group>"; };
 		12F8353C2007F75B00F8C140 /* RepoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RepoViewController.swift; sourceTree = "<group>"; };
-		12F835412007F86800F8C140 /* ProgressGraph.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ProgressGraph.xib; sourceTree = "<group>"; };
-		12F835452007F90800F8C140 /* ProgressGraph.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProgressGraph.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -160,8 +160,7 @@
 				12AEA1F220066E97002844F4 /* LaunchScreen.storyboard */,
 				12AEA1F020066E97002844F4 /* Assets.xcassets */,
 				12AEA1ED20066E97002844F4 /* Main.storyboard */,
-				12F835412007F86800F8C140 /* ProgressGraph.xib */,
-				12F835452007F90800F8C140 /* ProgressGraph.swift */,
+				12CA2D7C20080CB4006C32C6 /* LineChart.swift */,
 			);
 			name = View;
 			sourceTree = "<group>";
@@ -172,6 +171,7 @@
 				12AEA1E920066E97002844F4 /* AppDelegate.swift */,
 				12AEA1EB20066E97002844F4 /* ViewController.swift */,
 				12F8353C2007F75B00F8C140 /* RepoViewController.swift */,
+				1229778420081A3000F117BA /* RecipeViewController.swift */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -287,7 +287,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				12AEA1F420066E97002844F4 /* LaunchScreen.storyboard in Resources */,
-				12F835422007F86800F8C140 /* ProgressGraph.xib in Resources */,
 				12AEA1F120066E97002844F4 /* Assets.xcassets in Resources */,
 				12AEA1EF20066E97002844F4 /* Main.storyboard in Resources */,
 			);
@@ -318,12 +317,13 @@
 				12AEA1EA20066E97002844F4 /* AppDelegate.swift in Sources */,
 				12F8353D2007F75B00F8C140 /* RepoViewController.swift in Sources */,
 				12F835332007BD4300F8C140 /* Task.swift in Sources */,
+				12CA2D7D20080CB4006C32C6 /* LineChart.swift in Sources */,
+				1229778520081A3000F117BA /* RecipeViewController.swift in Sources */,
 				12F835392007E79200F8C140 /* Repo.swift in Sources */,
 				12F835352007E41B00F8C140 /* Tool.swift in Sources */,
 				12B59F9D20067A76008D2C63 /* Ingredient.swift in Sources */,
 				12F835312006C9A100F8C140 /* Recipe.swift in Sources */,
 				12F835372007E5DD00F8C140 /* User.swift in Sources */,
-				12F835462007F90800F8C140 /* ProgressGraph.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
