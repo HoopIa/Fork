@@ -20,6 +20,9 @@
 		12F835352007E41B00F8C140 /* Tool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12F835342007E41B00F8C140 /* Tool.swift */; };
 		12F835372007E5DD00F8C140 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12F835362007E5DD00F8C140 /* User.swift */; };
 		12F835392007E79200F8C140 /* Repo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12F835382007E79200F8C140 /* Repo.swift */; };
+		12F8353D2007F75B00F8C140 /* RepoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12F8353C2007F75B00F8C140 /* RepoViewController.swift */; };
+		12F835422007F86800F8C140 /* ProgressGraph.xib in Resources */ = {isa = PBXBuildFile; fileRef = 12F835412007F86800F8C140 /* ProgressGraph.xib */; };
+		12F835462007F90800F8C140 /* ProgressGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12F835452007F90800F8C140 /* ProgressGraph.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -59,6 +62,9 @@
 		12F835342007E41B00F8C140 /* Tool.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tool.swift; sourceTree = "<group>"; };
 		12F835362007E5DD00F8C140 /* User.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		12F835382007E79200F8C140 /* Repo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Repo.swift; sourceTree = "<group>"; };
+		12F8353C2007F75B00F8C140 /* RepoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RepoViewController.swift; sourceTree = "<group>"; };
+		12F835412007F86800F8C140 /* ProgressGraph.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ProgressGraph.xib; sourceTree = "<group>"; };
+		12F835452007F90800F8C140 /* ProgressGraph.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProgressGraph.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -109,18 +115,9 @@
 		12AEA1E820066E97002844F4 /* Fork */ = {
 			isa = PBXGroup;
 			children = (
-				12AEA1E920066E97002844F4 /* AppDelegate.swift */,
-				12AEA1EB20066E97002844F4 /* ViewController.swift */,
-				12AEA1ED20066E97002844F4 /* Main.storyboard */,
-				12AEA1F020066E97002844F4 /* Assets.xcassets */,
-				12AEA1F220066E97002844F4 /* LaunchScreen.storyboard */,
-				12AEA1F520066E97002844F4 /* Info.plist */,
-				12F835302006C9A100F8C140 /* Recipe.swift */,
-				12B59F9C20067A76008D2C63 /* Ingredient.swift */,
-				12F835322007BD4300F8C140 /* Task.swift */,
-				12F835342007E41B00F8C140 /* Tool.swift */,
-				12F835362007E5DD00F8C140 /* User.swift */,
-				12F835382007E79200F8C140 /* Repo.swift */,
+				12F8353E2007F77000F8C140 /* Model */,
+				12F8353F2007F77B00F8C140 /* View */,
+				12F835402007F79B00F8C140 /* Controller */,
 			);
 			path = Fork;
 			sourceTree = "<group>";
@@ -141,6 +138,42 @@
 				12AEA20B20066E97002844F4 /* Info.plist */,
 			);
 			path = ForkUITests;
+			sourceTree = "<group>";
+		};
+		12F8353E2007F77000F8C140 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				12F835362007E5DD00F8C140 /* User.swift */,
+				12F835382007E79200F8C140 /* Repo.swift */,
+				12F835302006C9A100F8C140 /* Recipe.swift */,
+				12B59F9C20067A76008D2C63 /* Ingredient.swift */,
+				12F835322007BD4300F8C140 /* Task.swift */,
+				12F835342007E41B00F8C140 /* Tool.swift */,
+			);
+			name = Model;
+			sourceTree = "<group>";
+		};
+		12F8353F2007F77B00F8C140 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				12AEA1F520066E97002844F4 /* Info.plist */,
+				12AEA1F220066E97002844F4 /* LaunchScreen.storyboard */,
+				12AEA1F020066E97002844F4 /* Assets.xcassets */,
+				12AEA1ED20066E97002844F4 /* Main.storyboard */,
+				12F835412007F86800F8C140 /* ProgressGraph.xib */,
+				12F835452007F90800F8C140 /* ProgressGraph.swift */,
+			);
+			name = View;
+			sourceTree = "<group>";
+		};
+		12F835402007F79B00F8C140 /* Controller */ = {
+			isa = PBXGroup;
+			children = (
+				12AEA1E920066E97002844F4 /* AppDelegate.swift */,
+				12AEA1EB20066E97002844F4 /* ViewController.swift */,
+				12F8353C2007F75B00F8C140 /* RepoViewController.swift */,
+			);
+			name = Controller;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -254,6 +287,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				12AEA1F420066E97002844F4 /* LaunchScreen.storyboard in Resources */,
+				12F835422007F86800F8C140 /* ProgressGraph.xib in Resources */,
 				12AEA1F120066E97002844F4 /* Assets.xcassets in Resources */,
 				12AEA1EF20066E97002844F4 /* Main.storyboard in Resources */,
 			);
@@ -282,12 +316,14 @@
 			files = (
 				12AEA1EC20066E97002844F4 /* ViewController.swift in Sources */,
 				12AEA1EA20066E97002844F4 /* AppDelegate.swift in Sources */,
+				12F8353D2007F75B00F8C140 /* RepoViewController.swift in Sources */,
 				12F835332007BD4300F8C140 /* Task.swift in Sources */,
 				12F835392007E79200F8C140 /* Repo.swift in Sources */,
 				12F835352007E41B00F8C140 /* Tool.swift in Sources */,
 				12B59F9D20067A76008D2C63 /* Ingredient.swift in Sources */,
 				12F835312006C9A100F8C140 /* Recipe.swift in Sources */,
 				12F835372007E5DD00F8C140 /* User.swift in Sources */,
+				12F835462007F90800F8C140 /* ProgressGraph.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

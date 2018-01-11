@@ -2,7 +2,9 @@
 //  Tool.swift
 //  Fork
 //
-//  Created by Jacob Williamson on 1/11/18.
+//  Tools or utensils used in a recipe. Includes a link for 
+//  webstore to purchase.
+//
 //  Copyright © 2018 Jacob Williamson. All rights reserved.
 //
 

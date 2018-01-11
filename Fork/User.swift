@@ -2,7 +2,8 @@
 //  User.swift
 //  Fork
 //
-//  Created by Jacob Williamson on 1/11/18.
+//  Basic user class to keep track of repos, followers, settings and preferences
+//
 //  Copyright © 2018 Jacob Williamson. All rights reserved.
 //
 
