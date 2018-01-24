@@ -15,8 +15,11 @@ import AVFoundation
 import UIKit
 
 class Task{
-    var name: String = ""
     var content: String = ""
     var image: UIImage = UIImage()
     //var videoLoop: AVAsset = AVAsset()
+    
+    init(content: String){
+        self.content = content
+    }
 }

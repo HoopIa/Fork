@@ -1,17 +1,15 @@
 //
-//  ImageHeaderCell.swift
+//  DirectionsHeaderCell.swift
 //  Fork
 //
-//  Created by Jacob Williamson on 1/23/18.
+//  Created by Jacob Williamson on 1/24/18.
 //  Copyright © 2018 Jacob Williamson. All rights reserved.
 //
 
 import UIKit
 
-class ImageHeaderCell: UITableViewCell {
-    
-    @IBOutlet weak var imageCenterYConstraint: NSLayoutConstraint!
-    
+class DirectionsHeaderCell: UITableViewCell {
+
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
