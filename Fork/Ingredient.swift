@@ -31,29 +31,17 @@ enum mUnit{
 //Standard Units
 enum sUnit{
     case none
-    case tablespoon
-    case teaspoon
+    case tbsp
+    case tsp
     case cup
-    case pint
-    case gallon
+    case pt
+    case gal
     case whole
-    case ounce //Dry Ounce not Fluid Ounce
-    case pound
+    case oz //Dry Ounce not Fluid Ounce
+    case lbs
 }
 
 //Allergens
-enum allergen{
-    case milk
-    case eggs
-    case peanuts
-    case treenuts
-    case soy
-    case gluten
-    case fish
-    case shellfish
-}
-
-
 class Ingredient{
     var name: String = ""
     var metricAmount: Double = 0
@@ -61,16 +49,17 @@ class Ingredient{
     var standardAmount: Double = 0
     var standardUnit: sUnit = sUnit.none
     var currentScheme: scheme
-    var allergens: [allergen] = []
     
-    init(mAmount: Double, mUnits: mUnit, name: String, allergens: [allergen]){
+    init(mAmount: Double, mUnits: mUnit, name: String){
+        self.name = name
         metricAmount = mAmount
         metricUnit = mUnits
         currentScheme = .metric
         convertUnits()
     }
     
-    init(sAmount: Double, sUnits: sUnit, name: String, allergens: [allergen]){
+    init(sAmount: Double, sUnits: sUnit, name: String){
+        self.name = name
         standardAmount = sAmount
         standardUnit = sUnits
         currentScheme = .standard
@@ -81,11 +70,11 @@ class Ingredient{
         switch self.currentScheme{
         case .standard:
             switch standardUnit{
-            case .teaspoon: // teaspoons ---> milliliters
+            case .tsp: // teaspoons ---> milliliters
                 metricAmount = standardAmount * 4.9289166908532360267
                 metricUnit = .mL
                 break
-            case .tablespoon: // tablespoons ---> milliliters
+            case .tbsp: // tablespoons ---> milliliters
                 metricAmount = standardAmount * 14.786754853806497678
                 metricUnit = .mL
                 break
@@ -93,26 +82,25 @@ class Ingredient{
                 metricAmount = standardAmount * 236.58807766090396285
                 metricUnit = .mL
                 break
-            case .pint: // pints ---> liters
+            case .pt: // pints ---> liters
                 metricAmount = standardAmount * 0.47317615532180790083
                 metricUnit = .L
                 break
-            case .gallon: // gallons ---> liters
+            case .gal: // gallons ---> liters
                 metricAmount = standardAmount * 3.7854092425744632067
                 metricUnit = .L
                 break
-            case .ounce: // dry ounces ---> grams
+            case .oz: // dry ounces ---> grams
                 metricAmount = standardAmount * 28.349500000010491
                 metricUnit = .g
                 break
-            case .pound: // pounds ---> kilograms
+            case .lbs: // pounds ---> kilograms
                 metricAmount = standardAmount * 0.453592
                 metricUnit = .kg
                 break
             default:
                 break
             }
-            self.currentScheme = .metric
         case .metric:
             switch metricUnit{
             case .mL: // milliliters ---> cups
@@ -121,20 +109,19 @@ class Ingredient{
                 break
             case .L: // liters ---> pints
                 standardAmount = metricAmount * 2.11337500000005285
-                standardUnit = .pint
+                standardUnit = .pt
                 break
             case .g: // grams ---> ounces
                 standardAmount = metricAmount * 0.035274
-                standardUnit = .ounce
+                standardUnit = .oz
                 break
             case .kg: // kilograms ---> pounds
                 standardAmount = metricAmount * 2.20462
-                standardUnit = .pound
+                standardUnit = .lbs
                 break
             default:
                 break
             }
-            self.currentScheme = .standard
         }
     }
 }

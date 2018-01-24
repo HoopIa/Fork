@@ -9,6 +9,17 @@
 import Foundation
 import UIKit
 
+enum allergen{
+    case milk
+    case eggs
+    case peanuts
+    case treenuts
+    case soy
+    case gluten
+    case fish
+    case shellfish
+}
+
 class Recipe{
     // Core Recipe
     var name: String = ""
@@ -19,7 +30,9 @@ class Recipe{
     var ingredients: [Ingredient] = []
     var tasks: [Task] = []
     var tools: [Tool] = []
-    
+    var allergens: [allergen] = []
+    var author: String = ""
+    var servings: Int = 0
     // Social Aspects
     var forks: Int = 0
     var isSecret: Bool = false
