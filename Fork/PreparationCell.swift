@@ -9,7 +9,12 @@
 import UIKit
 
 class PreparationCell: UITableViewCell {
-
+    @IBOutlet weak var prepTime: UILabel!
+    @IBOutlet weak var cookTime: UILabel!
+    @IBOutlet weak var totalTime: UILabel!
+    
+    @IBOutlet weak var servingNumber: UILabel!
+    
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
@@ -21,4 +26,7 @@ class PreparationCell: UITableViewCell {
         // Configure the view for the selected state
     }
 
+    @IBAction func stepper(_ sender: Any) {
+        
+    }
 }

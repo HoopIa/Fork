@@ -7,7 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		122011372017D9D2003FD614 /* TitleCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 122011362017D9D2003FD614 /* TitleCell.swift */; };
+		122011392017DB1F003FD614 /* PreparationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 122011382017DB1F003FD614 /* PreparationCell.swift */; };
+		1220113B2017DB43003FD614 /* IngredientCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1220113A2017DB43003FD614 /* IngredientCell.swift */; };
+		1220113D2017DB60003FD614 /* DirectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1220113C2017DB60003FD614 /* DirectionCell.swift */; };
 		1229778520081A3000F117BA /* RecipeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1229778420081A3000F117BA /* RecipeViewController.swift */; };
+		127D85262018037900FB173B /* ImageHeaderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 127D85252018037900FB173B /* ImageHeaderCell.swift */; };
 		12AEA1EA20066E97002844F4 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12AEA1E920066E97002844F4 /* AppDelegate.swift */; };
 		12AEA1EC20066E97002844F4 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12AEA1EB20066E97002844F4 /* ViewController.swift */; };
 		12AEA1EF20066E97002844F4 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 12AEA1ED20066E97002844F4 /* Main.storyboard */; };
@@ -45,7 +50,12 @@
 
 /* Begin PBXFileReference section */
 		0DCEF44224000F72DC4CDE55 /* Pods_Fork.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Fork.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		122011362017D9D2003FD614 /* TitleCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TitleCell.swift; sourceTree = "<group>"; };
+		122011382017DB1F003FD614 /* PreparationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreparationCell.swift; sourceTree = "<group>"; };
+		1220113A2017DB43003FD614 /* IngredientCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientCell.swift; sourceTree = "<group>"; };
+		1220113C2017DB60003FD614 /* DirectionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectionCell.swift; sourceTree = "<group>"; };
 		1229778420081A3000F117BA /* RecipeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecipeViewController.swift; sourceTree = "<group>"; };
+		127D85252018037900FB173B /* ImageHeaderCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageHeaderCell.swift; sourceTree = "<group>"; };
 		12AEA1E620066E97002844F4 /* Fork.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Fork.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		12AEA1E920066E97002844F4 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		12AEA1EB20066E97002844F4 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -168,6 +178,11 @@
 				12AEA1F020066E97002844F4 /* Assets.xcassets */,
 				12AEA1ED20066E97002844F4 /* Main.storyboard */,
 				12CA2D7C20080CB4006C32C6 /* LineChart.swift */,
+				122011362017D9D2003FD614 /* TitleCell.swift */,
+				122011382017DB1F003FD614 /* PreparationCell.swift */,
+				1220113A2017DB43003FD614 /* IngredientCell.swift */,
+				1220113C2017DB60003FD614 /* DirectionCell.swift */,
+				127D85252018037900FB173B /* ImageHeaderCell.swift */,
 			);
 			name = View;
 			sourceTree = "<group>";
@@ -344,10 +359,12 @@
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-Fork/Pods-Fork-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/Charts/Charts.framework",
+				"${BUILT_PRODUCTS_DIR}/ParallaxHeader/ParallaxHeader.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Charts.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ParallaxHeader.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -394,14 +411,19 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				122011372017D9D2003FD614 /* TitleCell.swift in Sources */,
 				12AEA1EC20066E97002844F4 /* ViewController.swift in Sources */,
 				12AEA1EA20066E97002844F4 /* AppDelegate.swift in Sources */,
+				1220113D2017DB60003FD614 /* DirectionCell.swift in Sources */,
 				12F8353D2007F75B00F8C140 /* RepoViewController.swift in Sources */,
 				12F835332007BD4300F8C140 /* Task.swift in Sources */,
+				122011392017DB1F003FD614 /* PreparationCell.swift in Sources */,
+				1220113B2017DB43003FD614 /* IngredientCell.swift in Sources */,
 				12CA2D7D20080CB4006C32C6 /* LineChart.swift in Sources */,
 				1229778520081A3000F117BA /* RecipeViewController.swift in Sources */,
 				12F835392007E79200F8C140 /* Repo.swift in Sources */,
 				12F835352007E41B00F8C140 /* Tool.swift in Sources */,
+				127D85262018037900FB173B /* ImageHeaderCell.swift in Sources */,
 				12B59F9D20067A76008D2C63 /* Ingredient.swift in Sources */,
 				12F835312006C9A100F8C140 /* Recipe.swift in Sources */,
 				12F835372007E5DD00F8C140 /* User.swift in Sources */,

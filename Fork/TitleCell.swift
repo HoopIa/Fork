@@ -9,7 +9,9 @@
 import UIKit
 
 class TitleCell: UITableViewCell {
-
+    @IBOutlet weak var recipeTitle: UILabel!
+    @IBOutlet weak var recipeAuthor: UIButton!
+    @IBOutlet weak var recipeForkCount: UIButton!
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code

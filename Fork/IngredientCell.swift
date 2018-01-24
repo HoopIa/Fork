@@ -10,6 +10,9 @@ import UIKit
 
 class IngredientCell: UITableViewCell {
 
+    @IBOutlet weak var amount: UILabel!
+    @IBOutlet weak var ingredient: UILabel!
+    
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code

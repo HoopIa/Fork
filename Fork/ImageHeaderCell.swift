@@ -1,5 +1,5 @@
 //
-//  DirectionCell.swift
+//  ImageHeaderCell.swift
 //  Fork
 //
 //  Created by Jacob Williamson on 1/23/18.
@@ -8,9 +8,9 @@
 
 import UIKit
 
-class DirectionCell: UITableViewCell {
-    @IBOutlet weak var directionIndex: UILabel!
-    @IBOutlet weak var directionContent: UILabel!
+class ImageHeaderCell: UITableViewCell {
+    
+    @IBOutlet weak var imageCenterYConstraint: NSLayoutConstraint!
     
     override func awakeFromNib() {
         super.awakeFromNib()
