@@ -115,7 +115,7 @@ class RecipeViewController: UIViewController, UITableViewDelegate, UITableViewDa
             
             print("Ingredient Name = \(ingredient.name)")
             cell.ingredient.text = ingredient.name
-            if(ingredient.standardAmount != 1.0 && String(describing: ingredient.standardUnit) != "whole"){
+            if(ingredient.standardAmount != 1.0 || String(describing: ingredient.standardUnit) != "whole"){
                 cell.amount.text = String(format: "%.2g", ingredient.standardAmount) + " " + String(describing: ingredient.standardUnit) + "s"
             }
             else{
