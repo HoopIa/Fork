@@ -12,21 +12,16 @@ class PreparationCell: UITableViewCell {
     @IBOutlet weak var prepTime: UILabel!
     @IBOutlet weak var cookTime: UILabel!
     @IBOutlet weak var totalTime: UILabel!
-    
     @IBOutlet weak var servingNumber: UILabel!
+    @IBOutlet weak var stepper: UIStepper!
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
 
         // Configure the view for the selected state
-    }
-
-    @IBAction func stepper(_ sender: Any) {
-        
     }
 }

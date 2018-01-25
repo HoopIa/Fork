@@ -63,7 +63,7 @@ class RecipeViewController: UIViewController, UITableViewDelegate, UITableViewDa
     /* Tableview Functions */
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return recipe.ingredients.count + recipe.tasks.count + 2
+        return recipe.ingredients.count + recipe.tasks.count + 4
     }
     
     func tableView(_ tableView: UITableView, numberOfSectionsInTableView section: Int) -> Int {
@@ -73,7 +73,6 @@ class RecipeViewController: UIViewController, UITableViewDelegate, UITableViewDa
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return UITableViewAutomaticDimension;
     }
-    
     
     func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
         switch indexPath.row {
@@ -88,14 +87,15 @@ class RecipeViewController: UIViewController, UITableViewDelegate, UITableViewDa
         switch indexPath.row {
         case 0:
             let cell:TitleCell = tableView.dequeueReusableCell(withIdentifier: "titleCell", for: indexPath) as! TitleCell
-            cell.recipeTitle.text = recipe.name
+            cell.recipeTitle.text = "\(recipe.name)"
             if recipe.forks > 1000 {
                 cell.recipeForkCount.titleLabel?.text = "\(Int((recipe.forks)/1000))k Forks"
+                cell.recipeForkCount.setTitle("\(Int((recipe.forks)/1000))k Forks", for: .normal)
             }
             else{
-                cell.recipeForkCount.titleLabel?.text = "\(recipe.forks) Forks"
+                cell.recipeForkCount.setTitle("\(recipe.forks) Forks", for: .normal)
             }
-            cell.recipeAuthor.titleLabel?.text = "By \(recipe.author)"
+            cell.recipeAuthor.setTitle("By \(recipe.author)", for: .normal)
             return cell
         case 1:
             let cell:PreparationCell = tableView.dequeueReusableCell(withIdentifier: "preparationCell", for: indexPath) as! PreparationCell
@@ -103,6 +103,8 @@ class RecipeViewController: UIViewController, UITableViewDelegate, UITableViewDa
             cell.cookTime.text = "\(recipe.cookTime) minutes"
             cell.totalTime.text = "\(recipe.readyTime) minutes"
             cell.servingNumber.text = "\(recipe.servings)"
+            cell.stepper.addTarget(self, action: #selector(self.didChangeServings(sender:)), for: .valueChanged)
+            cell.stepper.value = Double(recipe.servings)
             return cell
         case 2:
             let cell:IngredientsHeaderCell = tableView.dequeueReusableCell(withIdentifier: "ingredientsHeaderCell", for: indexPath) as! IngredientsHeaderCell
@@ -113,10 +115,12 @@ class RecipeViewController: UIViewController, UITableViewDelegate, UITableViewDa
             
             print("Ingredient Name = \(ingredient.name)")
             cell.ingredient.text = ingredient.name
-            if(ingredient.standardAmount != 1 && String(describing: ingredient.standardUnit) != "whole"){
-                cell.amount.text = String(ingredient.standardAmount) + " " + String(describing: ingredient.standardUnit) + "s"
+            if(ingredient.standardAmount != 1.0 && String(describing: ingredient.standardUnit) != "whole"){
+                cell.amount.text = String(format: "%.2g", ingredient.standardAmount) + " " + String(describing: ingredient.standardUnit) + "s"
             }
-            cell.amount.text = String(ingredient.standardAmount) + " " + String(describing: ingredient.standardUnit)
+            else{
+                cell.amount.text = String(format: "%.2g", ingredient.standardAmount) + " " + String(describing: ingredient.standardUnit)
+            }
             return cell
         case (3 + recipe.ingredients.count):
             let cell:DirectionsHeaderCell = tableView.dequeueReusableCell(withIdentifier: "directionsHeaderCell", for: indexPath) as! DirectionsHeaderCell
@@ -170,6 +174,16 @@ class RecipeViewController: UIViewController, UITableViewDelegate, UITableViewDa
         return recipe
     }
     
+    func didChangeServings(sender: UIStepper) {
+        let updatedServings = sender.value
+        let multiplier = updatedServings / Double(recipe.servings)
+        recipe.servings = Int(updatedServings)
+        for ingredient in recipe.ingredients {
+            ingredient.standardAmount *= multiplier
+        }
+       self.table.reloadData()
+        
+    }
 }
 
 
