@@ -140,8 +140,111 @@ export default function RecipeTimeline({ history, recipeName, onRatingUpdate }: 
   }
 
   return (
-    <div className="bg-white border border-gray-100 p-8">
-      <h2 className="text-3xl font-bold text-gray-900 mb-8 tracking-tight">Recipe Evolution Timeline</h2>
+    <div className="bg-white border border-gray-100 p-4 sm:p-8">
+      <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8 tracking-tight">Recipe Evolution Timeline</h2>
+      
+      {/* Mobile Version Cards - Visible only on mobile */}
+      <div className="sm:hidden mb-8">
+        <div className="flex overflow-x-auto gap-4 pb-4 -mx-4 px-4 snap-x snap-mandatory">
+          {history.map((item) => {
+            const date = new Date(item.date)
+            const isUploading = uploadingImage === item.sha
+            
+            return (
+              <div 
+                key={item.sha} 
+                className="flex-shrink-0 w-64 bg-gray-50 rounded-lg p-4 snap-center"
+              >
+                {/* Image */}
+                <div className="relative mb-3">
+                  {item.image ? (
+                    <div className="w-full aspect-square rounded-lg overflow-hidden">
+                      <img
+                        src={item.image}
+                        alt={`Version ${item.version}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-full aspect-square rounded-lg bg-gray-200 flex items-center justify-center">
+                      <Camera className="w-8 h-8 text-gray-400" />
+                    </div>
+                  )}
+                  
+                  {/* Upload overlay */}
+                  <label className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 active:opacity-100 rounded-lg cursor-pointer">
+                    {isUploading ? (
+                      <span className="text-white text-sm font-medium">Uploading...</span>
+                    ) : (
+                      <div className="flex flex-col items-center text-white">
+                        <Upload className="w-6 h-6 mb-1" />
+                        <span className="text-xs font-medium">{item.image ? 'Change' : 'Add Photo'}</span>
+                      </div>
+                    )}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      className="hidden"
+                      disabled={isUploading}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (file) handleImageUpload(item, file)
+                        e.target.value = ''
+                      }}
+                    />
+                  </label>
+                </div>
+                
+                {/* Version badge */}
+                <div className="flex items-center justify-between mb-2">
+                  <span className="px-2 py-0.5 bg-gray-900 text-white text-xs font-bold rounded">
+                    v{item.version}
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    {date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </span>
+                </div>
+                
+                {/* Description */}
+                <p className="text-sm text-gray-700 line-clamp-2 mb-3">{item.message}</p>
+                
+                {/* Rating */}
+                <div className="flex items-center justify-between">
+                  {editingRating === item.sha ? (
+                    <div className="flex items-center gap-2 w-full">
+                      <input
+                        type="range"
+                        min="0"
+                        max="10"
+                        step="0.5"
+                        value={ratingValue}
+                        onChange={(e) => setRatingValue(parseFloat(e.target.value))}
+                        className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-yellow-500"
+                      />
+                      <span className="text-sm font-bold w-8">{ratingValue.toFixed(1)}</span>
+                      <button
+                        onClick={() => handleRatingSave(item.sha, item.version)}
+                        className="px-2 py-1 text-xs bg-gray-900 text-white rounded font-medium"
+                      >
+                        Save
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => handleRatingClick(item)}
+                      className="flex items-center gap-1 text-sm"
+                    >
+                      <Star className={`w-4 h-4 ${item.rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400'}`} />
+                      <span className="font-medium">{item.rating ? item.rating.toFixed(1) : 'Rate'}</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
       
       {/* Timeline Graph - Hidden on mobile */}
       <div className="relative mb-12 hidden sm:block" style={{ minHeight: '750px' }}>
@@ -264,10 +367,9 @@ export default function RecipeTimeline({ history, recipeName, onRatingUpdate }: 
           </svg>
         </div>
 
-        {/* Bottom section with images, dates, and descriptions */}
-        {/* Desktop: absolute positioned, Mobile: horizontal scroll */}
-        <div className="ml-0 sm:ml-20 mt-8 pr-4 overflow-x-auto">
-          <div className="flex sm:relative gap-4 sm:gap-0 pb-4 sm:pb-0" style={{ minHeight: '320px' }}>
+        {/* Bottom section with images, dates, and descriptions - Desktop only */}
+        <div className="ml-20 mt-8 pr-4">
+          <div className="relative" style={{ minHeight: '320px' }}>
             {points.map((point, index) => {
               const date = new Date(point.date)
               const isUploading = uploadingImage === point.sha
@@ -275,7 +377,7 @@ export default function RecipeTimeline({ history, recipeName, onRatingUpdate }: 
               return (
                 <div
                   key={point.sha}
-                  className="flex-shrink-0 sm:absolute flex flex-col items-center text-center"
+                  className="absolute flex flex-col items-center text-center"
                   style={{ 
                     left: `${point.x}%`, 
                     top: 0, 
