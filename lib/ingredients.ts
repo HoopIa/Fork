@@ -62,49 +62,95 @@ const metricToImperial: Record<string, { imperial: string; factor: number }> = {
   'cm': { imperial: 'in', factor: 0.393701 },
 }
 
+// All recognized units for better parsing
+const allUnits = [
+  // Volume - plural and singular
+  'cups?', 'tablespoons?', 'tbsp\\.?', 'teaspoons?', 'tsp\\.?',
+  'fluid ounces?', 'fl oz', 'pints?', 'quarts?', 'gallons?',
+  'ml', 'milliliters?', 'l', 'liters?', 'litres?',
+  // Weight
+  'ounces?', 'oz\\.?', 'pounds?', 'lbs?\\.?', 'lb\\.?',
+  'g', 'grams?', 'kg', 'kilograms?',
+  // Count/misc
+  'cloves?', 'heads?', 'bunches?', 'stalks?', 'slices?',
+  'pieces?', 'cans?', 'packages?', 'bags?', 'jars?', 'bottles?',
+  'sticks?', 'pinch(?:es)?', 'dash(?:es)?', 'sprigs?',
+  // Length
+  'inch(?:es)?', 'in\\.?', 'feet', 'foot', 'ft\\.?', 'cm', 'centimeters?',
+]
+
 // Parse ingredient string to extract amount, unit, and ingredient name
 export function parseIngredient(ingredient: string): ParsedIngredient {
   const original = ingredient.trim()
   
-  // Pattern to match: number (possibly fraction) + unit + ingredient
-  // Examples: "2 cups flour", "1/2 teaspoon salt", "3/4 cup (63 g) cocoa powder"
-  const patterns = [
-    // Match: "3/4 cup (63 g) cocoa powder" or "2 cups (240 g) flour"
-    /^(\d+\/\d+|\d+\.?\d*)\s+([a-zA-Z.]+)\s+\((\d+(?:\.\d+)?)\s*([a-zA-Z]+)\)\s+(.+)$/,
-    // Match: "2 cups flour" or "1/2 teaspoon salt"
-    /^(\d+\/\d+|\d+\.?\d*)\s+([a-zA-Z.]+)\s+(.+)$/,
+  // Build a regex pattern that matches any unit
+  const unitPattern = allUnits.join('|')
+  
+  // Patterns to try in order (most specific first)
+  const patterns: { regex: RegExp; groups: string[] }[] = [
+    // Match: "3/4 cup (63 g) cocoa powder" - with weight in parentheses
+    {
+      regex: new RegExp(`^([\\d\\s/\\.]+)\\s+(${unitPattern})\\s+\\((\\d+(?:\\.\\d+)?)\\s*(${unitPattern})\\)\\s+(?:of\\s+)?(.+)$`, 'i'),
+      groups: ['amount', 'unit', 'weightAmount', 'weightUnit', 'ingredient']
+    },
+    // Match: "2 lbs of bananas" - with "of" between unit and ingredient
+    {
+      regex: new RegExp(`^([\\d\\s/\\.]+)\\s+(${unitPattern})\\s+of\\s+(.+)$`, 'i'),
+      groups: ['amount', 'unit', 'ingredient']
+    },
+    // Match: "2 cups flour" or "1 1/2 teaspoons salt" - standard format
+    {
+      regex: new RegExp(`^([\\d\\s/\\.]+)\\s+(${unitPattern})\\s+(.+)$`, 'i'),
+      groups: ['amount', 'unit', 'ingredient']
+    },
     // Match: "2 cups" (no ingredient name after)
-    /^(\d+\/\d+|\d+\.?\d*)\s+([a-zA-Z.]+)$/,
+    {
+      regex: new RegExp(`^([\\d\\s/\\.]+)\\s+(${unitPattern})$`, 'i'),
+      groups: ['amount', 'unit']
+    },
+    // Match: "3 eggs" or "2 bananas" - count without unit
+    {
+      regex: /^([\d\s/\.]+)\s+(.+)$/,
+      groups: ['amount', 'ingredient']
+    },
   ]
   
-  for (const pattern of patterns) {
-    const match = ingredient.match(pattern)
+  for (const { regex, groups } of patterns) {
+    const match = ingredient.match(regex)
     if (match) {
-      const amountStr = match[1]
-      const unit = match[2].toLowerCase()
-      const amount = parseFraction(amountStr)
-      
-      // If there's a weight in parentheses, use that as the base
-      if (match[3] && match[4]) {
-        const weightAmount = parseFloat(match[3])
-        const weightUnit = match[4].toLowerCase()
-        const ingredientName = match[5] || ''
-        
-        return {
-          original,
-          amount: weightAmount,
-          unit: weightUnit,
-          ingredient: ingredientName,
-        }
+      const result: ParsedIngredient = {
+        original,
+        ingredient: '',
       }
       
-      const ingredientName = match[3] || ''
+      // Map captured groups to result fields
+      groups.forEach((group, index) => {
+        const value = match[index + 1]
+        if (!value) return
+        
+        switch (group) {
+          case 'amount':
+            result.amount = parseFraction(value.trim())
+            break
+          case 'unit':
+            result.unit = normalizeUnit(value.trim())
+            break
+          case 'weightAmount':
+            // Override with weight if present
+            result.amount = parseFloat(value)
+            break
+          case 'weightUnit':
+            result.unit = normalizeUnit(value)
+            break
+          case 'ingredient':
+            result.ingredient = value.trim()
+            break
+        }
+      })
       
-      return {
-        original,
-        amount,
-        unit,
-        ingredient: ingredientName,
+      // Make sure we have at least something
+      if (result.amount !== undefined || result.ingredient) {
+        return result
       }
     }
   }
@@ -114,6 +160,37 @@ export function parseIngredient(ingredient: string): ParsedIngredient {
     original,
     ingredient: original,
   }
+}
+
+// Normalize unit to standard form
+function normalizeUnit(unit: string): string {
+  const normalized = unit.toLowerCase().replace(/\.$/, '')
+  
+  const unitMap: Record<string, string> = {
+    'tablespoon': 'tbsp',
+    'tablespoons': 'tbsp',
+    'teaspoon': 'tsp',
+    'teaspoons': 'tsp',
+    'ounce': 'oz',
+    'ounces': 'oz',
+    'pound': 'lb',
+    'pounds': 'lb',
+    'lbs': 'lb',
+    'cup': 'cup',
+    'cups': 'cup',
+    'gram': 'g',
+    'grams': 'g',
+    'kilogram': 'kg',
+    'kilograms': 'kg',
+    'milliliter': 'ml',
+    'milliliters': 'ml',
+    'liter': 'l',
+    'liters': 'l',
+    'litre': 'l',
+    'litres': 'l',
+  }
+  
+  return unitMap[normalized] || normalized
 }
 
 // Parse fraction string to decimal (e.g., "3/4" -> 0.75, "1 1/2" -> 1.5)
@@ -233,23 +310,66 @@ export function convertIngredient(
 
 // Format parsed ingredient back to string
 export function formatIngredient(parsed: ParsedIngredient): string {
-  if (!parsed.amount || !parsed.unit) {
-    return parsed.ingredient || parsed.original
+  // If we have an amount but no unit (e.g., "3 eggs")
+  if (parsed.amount !== undefined && !parsed.unit) {
+    const amountStr = formatNumber(parsed.amount)
+    if (parsed.ingredient) {
+      return `${amountStr} ${parsed.ingredient}`
+    }
+    return parsed.original
   }
   
-  const amountStr = formatNumber(parsed.amount)
-  const unit = parsed.unit
-  
-  // Handle pluralization
-  const pluralUnit = parsed.amount !== 1 && unitConversions[unit] 
-    ? getPluralUnit(unit)
-    : unit
-  
-  if (parsed.ingredient) {
-    return `${amountStr} ${pluralUnit} ${parsed.ingredient}`
+  // If we have amount and unit
+  if (parsed.amount !== undefined && parsed.unit) {
+    const amountStr = formatNumber(parsed.amount)
+    
+    // Get display unit (pluralized if needed)
+    const displayUnit = getDisplayUnit(parsed.unit, parsed.amount)
+    
+    if (parsed.ingredient) {
+      return `${amountStr} ${displayUnit} ${parsed.ingredient}`
+    }
+    return `${amountStr} ${displayUnit}`
   }
   
-  return `${amountStr} ${pluralUnit}`
+  // Fallback to original
+  return parsed.ingredient || parsed.original
+}
+
+// Get display form of unit with proper pluralization
+function getDisplayUnit(unit: string, amount: number): string {
+  const singularToPlural: Record<string, string> = {
+    'cup': 'cups',
+    'tbsp': 'tbsp',
+    'tsp': 'tsp',
+    'oz': 'oz',
+    'lb': 'lbs',
+    'g': 'g',
+    'kg': 'kg',
+    'ml': 'ml',
+    'l': 'l',
+    'clove': 'cloves',
+    'head': 'heads',
+    'bunch': 'bunches',
+    'stalk': 'stalks',
+    'slice': 'slices',
+    'piece': 'pieces',
+    'can': 'cans',
+    'package': 'packages',
+    'stick': 'sticks',
+    'pinch': 'pinches',
+    'dash': 'dashes',
+    'sprig': 'sprigs',
+    'inch': 'inches',
+    'cm': 'cm',
+  }
+  
+  // Use plural if amount > 1
+  if (amount > 1 && singularToPlural[unit]) {
+    return singularToPlural[unit]
+  }
+  
+  return unit
 }
 
 // Get plural form of unit

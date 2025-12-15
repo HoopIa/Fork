@@ -98,7 +98,7 @@ export async function saveVersionImage(
   })
 }
 
-// Upload version-specific image to GitHub
+// Upload version-specific image to GitHub (replaces existing image for that version)
 export async function uploadVersionImage(
   octokit: Octokit,
   username: string,
@@ -109,33 +109,98 @@ export async function uploadVersionImage(
   filename: string,
   repoName: string = 'recipes'
 ): Promise<{ imagePath: string; imageUrl: string }> {
-  // Store in version-images folder with version number prefix
-  const imagePath = `${recipeName}/version-images/v${version}-${filename}`
+  // Get file extension from filename
+  const ext = filename.split('.').pop()?.toLowerCase() || 'jpg'
+  
+  // Use consistent filename so it replaces the old image
+  const imagePath = `${recipeName}/version-images/v${version}-image.${ext}`
   
   // Remove data URL prefix if present
   const base64Data = base64Image.includes(',') ? base64Image.split(',')[1] : base64Image
   
-  // Upload the image
+  // Check if there's an existing image for this version and delete it
+  const existingImages = await getVersionImages(octokit, username, recipeName, repoName)
+  const existingImage = existingImages.find(img => img.sha === sha)
+  
+  if (existingImage && existingImage.imagePath !== imagePath) {
+    // Delete the old image file
+    try {
+      const { data: oldFile } = await octokit.repos.getContent({
+        owner: username,
+        repo: repoName,
+        path: existingImage.imagePath,
+      })
+      
+      if ('sha' in oldFile) {
+        await octokit.repos.deleteFile({
+          owner: username,
+          repo: repoName,
+          path: existingImage.imagePath,
+          message: `Replace image for ${recipeName} version ${version}`,
+          sha: oldFile.sha,
+        })
+      }
+    } catch {
+      // Old file doesn't exist, continue
+    }
+  }
+  
+  // Check if file already exists (for update with same extension)
+  let existingFileSha: string | undefined
+  try {
+    const { data: existingFile } = await octokit.repos.getContent({
+      owner: username,
+      repo: repoName,
+      path: imagePath,
+    })
+    if ('sha' in existingFile) {
+      existingFileSha = existingFile.sha
+    }
+  } catch {
+    // File doesn't exist
+  }
+  
+  // Upload the image (create or update)
   await octokit.repos.createOrUpdateFileContents({
     owner: username,
     repo: repoName,
     path: imagePath,
-    message: `Add image for ${recipeName} version ${version}`,
+    message: `${existingFileSha ? 'Update' : 'Add'} image for ${recipeName} version ${version}`,
     content: base64Data,
+    sha: existingFileSha,
   })
   
-  // Get the download URL
+  // Get the download URL (add timestamp to bust cache)
   const { data } = await octokit.repos.getContent({
     owner: username,
     repo: repoName,
     path: imagePath,
   })
   
-  const imageUrl = 'download_url' in data ? data.download_url || '' : ''
+  const rawUrl = 'download_url' in data ? data.download_url || '' : ''
+  // Add cache-busting query param
+  const imageUrl = rawUrl ? `${rawUrl}?t=${Date.now()}` : ''
   
   // Save metadata
   await saveVersionImage(octokit, username, recipeName, sha, version, imagePath, imageUrl, repoName)
   
   return { imagePath, imageUrl }
+}
+
+// Get the most recent version image (for hero display)
+export async function getLatestVersionImage(
+  octokit: Octokit,
+  username: string,
+  recipeName: string,
+  repoName: string = 'recipes'
+): Promise<string | null> {
+  const images = await getVersionImages(octokit, username, recipeName, repoName)
+  
+  if (images.length > 0) {
+    // Images are sorted by version (newest first)
+    return images[0].imageUrl
+  }
+  
+  return null
 }
 
