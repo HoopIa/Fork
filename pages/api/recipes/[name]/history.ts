@@ -35,7 +35,8 @@ export default async function handler(
         // Get history with version numbers
         const history = await getRecipeHistory(octokit, username, recipeName, repoName)
         const ratings = await getRatings(octokit, username, recipeName, repoName)
-        const versionImages = await getVersionImages(octokit, username, recipeName, repoName)
+        // Refresh URLs to ensure they're valid
+        const versionImages = await getVersionImages(octokit, username, recipeName, repoName, true)
         
         // Debug logging
         console.log('History SHAs:', history.map(h => h.sha))
@@ -45,7 +46,10 @@ export default async function handler(
         const historyWithVersions = history.map((commit, index) => {
           const version = history.length - index
           const rating = ratings.find(r => r.sha === commit.sha)
-          const versionImage = versionImages.find(img => img.sha === commit.sha)
+          
+          // Match by version number first (more reliable), fall back to SHA
+          const versionImage = versionImages.find(img => img.version === version) 
+            || versionImages.find(img => img.sha === commit.sha)
           
           console.log(`Version ${version}: commit.sha=${commit.sha}, matched image:`, versionImage?.imageUrl ? 'yes' : 'no')
           
