@@ -249,17 +249,17 @@ export default function RecipeTimeline({ history, recipeName, onRatingUpdate }: 
       
       {/* Timeline Graph - Hidden on mobile */}
       <div className="relative mb-12 hidden sm:block" style={{ minHeight: '750px' }}>
-        {/* Y-axis labels (0-10 scale) */}
-        <div className="absolute left-0 top-0 bottom-0 w-20 flex flex-col justify-between text-sm text-gray-700 font-bold py-[10%]">
-          <span className="text-right pr-3">10.0</span>
-          <span className="text-right pr-3">7.5</span>
-          <span className="text-right pr-3">5.0</span>
-          <span className="text-right pr-3">2.5</span>
-          <span className="text-right pr-3">0.0</span>
-        </div>
+        {/* Graph area with Y-axis labels aligned */}
+        <div className="relative border-l-2 border-b-2 border-gray-900" style={{ height: '450px', marginLeft: '80px' }}>
+          {/* Y-axis labels (0-10 scale) - aligned with grid lines */}
+          <div className="absolute -left-20 top-0 w-20 text-sm text-gray-700 font-bold" style={{ height: '450px' }}>
+            <span className="absolute text-right pr-3" style={{ top: '10%' }}>10.0</span>
+            <span className="absolute text-right pr-3" style={{ top: '30%' }}>7.5</span>
+            <span className="absolute text-right pr-3" style={{ top: '50%' }}>5.0</span>
+            <span className="absolute text-right pr-3" style={{ top: '70%' }}>2.5</span>
+            <span className="absolute text-right pr-3" style={{ top: '90%' }}>0.0</span>
+          </div>
 
-        {/* Graph area */}
-        <div className="ml-20 relative border-l-2 border-b-2 border-gray-900" style={{ height: '450px' }}>
           {/* Grid lines - correspond to 0, 2.5, 5, 7.5, 10 on the scale */}
           {[10, 30, 50, 70, 90].map((y) => (
             <div
@@ -274,7 +274,7 @@ export default function RecipeTimeline({ history, recipeName, onRatingUpdate }: 
             {/* Connect points with lines */}
             {points.length > 1 && (
               <polyline
-                points={points.map(p => `${p.x}%,${100 - p.y}%`).join(' ')}
+                points={points.map(p => `${p.x}%,${p.y}%`).join(' ')}
                 fill="none"
                 stroke="#000"
                 strokeWidth="4"
@@ -291,7 +291,7 @@ export default function RecipeTimeline({ history, recipeName, onRatingUpdate }: 
                   {/* Connection line from point to image/description area */}
                   <line
                     x1={`${point.x}%`}
-                    y1={`${100 - point.y}%`}
+                    y1={`${point.y}%`}
                     x2={`${point.x}%`}
                     y2="100%"
                     stroke="#d1d5db"
@@ -310,7 +310,7 @@ export default function RecipeTimeline({ history, recipeName, onRatingUpdate }: 
                   {/* Outer ring for prominence */}
                   <circle
                     cx={`${point.x}%`}
-                    cy={`${100 - point.y}%`}
+                    cy={`${point.y}%`}
                     r="24"
                     fill="none"
                     stroke={point.rating ? "#000" : "#94a3b8"}
@@ -321,7 +321,7 @@ export default function RecipeTimeline({ history, recipeName, onRatingUpdate }: 
                   {/* Main node */}
                   <circle
                     cx={`${point.x}%`}
-                    cy={`${100 - point.y}%`}
+                    cy={`${point.y}%`}
                     r="20"
                     fill={point.rating ? "#000" : "#94a3b8"}
                     stroke="white"
@@ -333,7 +333,7 @@ export default function RecipeTimeline({ history, recipeName, onRatingUpdate }: 
                   {/* Version number inside node */}
                   <text
                     x={`${point.x}%`}
-                    y={`${100 - point.y}%`}
+                    y={`${point.y}%`}
                     textAnchor="middle"
                     dominantBaseline="middle"
                     className="text-sm fill-white font-bold"
@@ -344,7 +344,7 @@ export default function RecipeTimeline({ history, recipeName, onRatingUpdate }: 
                   {/* Date label above node */}
                   <text
                     x={`${point.x}%`}
-                    y={`${100 - point.y - 3}%`}
+                    y={`${point.y - 3}%`}
                     textAnchor="middle"
                     className="text-[10px] fill-gray-600 font-medium"
                     style={{ transform: 'translateY(-35px)' }}
@@ -356,7 +356,7 @@ export default function RecipeTimeline({ history, recipeName, onRatingUpdate }: 
                   {point.rating && (
                     <text
                       x={`${point.x}%`}
-                      y={`${100 - point.y + 3}%`}
+                      y={`${point.y + 3}%`}
                       textAnchor="middle"
                       className="text-[10px] fill-gray-700 font-bold"
                       style={{ transform: 'translateY(30px)' }}
