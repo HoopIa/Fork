@@ -80,6 +80,7 @@ export async function saveRecipeCategory(
 }
 
 // Get the most recent version image for a recipe (thumbnail)
+// Returns a proxy URL for private repo support
 async function getRecipeThumbnail(
   octokit: Octokit,
   username: string,
@@ -121,24 +122,10 @@ async function getRecipeThumbnail(
         const deduplicated = Array.from(imageMap.values())
         deduplicated.sort((a, b) => b.version - a.version)
         
-        // Get fresh URL for the most recent version
+        // Return proxy URL for the most recent version
         if (deduplicated.length > 0) {
-          const latestImage = deduplicated[0]
-          try {
-            const { data: fileData } = await octokit.repos.getContent({
-              owner: username,
-              repo: repoName,
-              path: latestImage.imagePath,
-            })
-            if ('download_url' in fileData && fileData.download_url) {
-              return fileData.download_url
-            }
-          } catch {
-            // Image file doesn't exist, try stored URL
-            if (latestImage.imageUrl) {
-              return latestImage.imageUrl
-            }
-          }
+          const latestVersion = deduplicated[0].version
+          return `/api/recipes/${encodeURIComponent(recipeName)}/image?version=${latestVersion}`
         }
       }
     }
@@ -162,35 +149,17 @@ async function getRecipeThumbnail(
           const versionMatch = item.name.match(/^v(\d+)-/)
           return {
             version: versionMatch ? parseInt(versionMatch[1], 10) : 0,
-            downloadUrl: item.download_url,
           }
         })
         .sort((a, b) => b.version - a.version)
       
-      if (imageFiles.length > 0 && imageFiles[0].downloadUrl) {
-        return imageFiles[0].downloadUrl
+      if (imageFiles.length > 0) {
+        // Return proxy URL
+        return `/api/recipes/${encodeURIComponent(recipeName)}/image?version=${imageFiles[0].version}`
       }
     }
   } catch {
     // No version-images folder
-  }
-  
-  // Fall back to regular images folder
-  try {
-    const { data } = await octokit.repos.getContent({
-      owner: username,
-      repo: repoName,
-      path: `${recipeName}/images`,
-    })
-    
-    if (Array.isArray(data) && data.length > 0) {
-      const firstImage = data.find((item: any) => item.type === 'file')
-      if (firstImage && 'download_url' in firstImage) {
-        return firstImage.download_url
-      }
-    }
-  } catch {
-    // No images folder
   }
   
   return null

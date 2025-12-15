@@ -51,13 +51,16 @@ export default async function handler(
           const versionImage = versionImages.find(img => img.version === version) 
             || versionImages.find(img => img.sha === commit.sha)
           
-          console.log(`Version ${version}: commit.sha=${commit.sha}, matched image:`, versionImage?.imageUrl ? 'yes' : 'no')
+          // Use proxy URL for private repo support
+          const imageUrl = versionImage 
+            ? `/api/recipes/${encodeURIComponent(recipeName)}/image?version=${version}`
+            : null
           
           return {
             ...commit,
             version,
             rating: rating?.rating || null,
-            image: versionImage?.imageUrl || null, // Single version-specific image
+            image: imageUrl,
           }
         })
         
