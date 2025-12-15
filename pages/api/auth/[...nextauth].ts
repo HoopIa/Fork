@@ -1,11 +1,22 @@
 import NextAuth, { NextAuthOptions } from 'next-auth'
 import GithubProvider from 'next-auth/providers/github'
 
+// Validate required environment variables
+if (!process.env.GITHUB_CLIENT_ID) {
+  console.error('Missing GITHUB_CLIENT_ID environment variable')
+}
+if (!process.env.GITHUB_CLIENT_SECRET) {
+  console.error('Missing GITHUB_CLIENT_SECRET environment variable')
+}
+if (!process.env.NEXTAUTH_SECRET) {
+  console.error('Missing NEXTAUTH_SECRET environment variable')
+}
+
 export const authOptions: NextAuthOptions = {
   providers: [
     GithubProvider({
-      clientId: process.env.GITHUB_CLIENT_ID!,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+      clientId: process.env.GITHUB_CLIENT_ID || '',
+      clientSecret: process.env.GITHUB_CLIENT_SECRET || '',
       authorization: {
         params: {
           scope: 'repo user:email read:user',
@@ -13,6 +24,7 @@ export const authOptions: NextAuthOptions = {
       },
     }),
   ],
+  secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
     async jwt({ token, account, profile }) {
       if (account) {
@@ -32,6 +44,7 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: '/auth/signin',
   },
+  debug: process.env.NODE_ENV === 'development',
 }
 
 export default NextAuth(authOptions)
