@@ -170,16 +170,14 @@ export async function uploadVersionImage(
     sha: existingFileSha,
   })
   
-  // Get the download URL (add timestamp to bust cache)
+  // Get the download URL
   const { data } = await octokit.repos.getContent({
     owner: username,
     repo: repoName,
     path: imagePath,
   })
   
-  const rawUrl = 'download_url' in data ? data.download_url || '' : ''
-  // Add cache-busting query param
-  const imageUrl = rawUrl ? `${rawUrl}?t=${Date.now()}` : ''
+  const imageUrl = 'download_url' in data ? data.download_url || '' : ''
   
   // Save metadata
   await saveVersionImage(octokit, username, recipeName, sha, version, imagePath, imageUrl, repoName)
