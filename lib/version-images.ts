@@ -9,11 +9,13 @@ export interface VersionImage {
 }
 
 // Get version images metadata (deduplicated, most recent upload wins)
+// If refreshUrls is true, verifies images exist and gets fresh URLs
 export async function getVersionImages(
   octokit: Octokit,
   username: string,
   recipeName: string,
-  repoName: string = 'recipes'
+  repoName: string = 'recipes',
+  refreshUrls: boolean = false
 ): Promise<VersionImage[]> {
   try {
     const { data } = await octokit.repos.getContent({
@@ -40,13 +42,68 @@ export async function getVersionImages(
       }
       
       // Convert back to array and sort by version (newest version first)
-      const deduplicated = Array.from(imageMap.values())
+      let deduplicated = Array.from(imageMap.values())
       deduplicated.sort((a, b) => b.version - a.version)
+      
+      // Optionally refresh URLs by checking if images still exist
+      if (refreshUrls) {
+        deduplicated = await Promise.all(
+          deduplicated.map(async (img) => {
+            try {
+              const { data: fileData } = await octokit.repos.getContent({
+                owner: username,
+                repo: repoName,
+                path: img.imagePath,
+              })
+              if ('download_url' in fileData && fileData.download_url) {
+                return { ...img, imageUrl: fileData.download_url }
+              }
+            } catch {
+              // Image file doesn't exist anymore
+            }
+            return img
+          })
+        )
+      }
       
       return deduplicated
     }
   } catch {
     // File doesn't exist
+  }
+  
+  // Fallback: scan the version-images folder directly
+  try {
+    const { data: folderData } = await octokit.repos.getContent({
+      owner: username,
+      repo: repoName,
+      path: `${recipeName}/version-images`,
+    })
+    
+    if (Array.isArray(folderData)) {
+      const images: VersionImage[] = []
+      for (const file of folderData) {
+        if (file.type === 'file' && file.name.match(/^v\d+-/)) {
+          // Extract version from filename (e.g., "v1-image.jpg" -> 1)
+          const versionMatch = file.name.match(/^v(\d+)-/)
+          if (versionMatch) {
+            images.push({
+              sha: file.sha,
+              version: parseInt(versionMatch[1], 10),
+              imagePath: `${recipeName}/version-images/${file.name}`,
+              imageUrl: file.download_url || '',
+              uploadedAt: new Date().toISOString(),
+            })
+          }
+        }
+      }
+      
+      // Sort by version (newest first)
+      images.sort((a, b) => b.version - a.version)
+      return images
+    }
+  } catch {
+    // No version-images folder
   }
   
   return []
@@ -228,7 +285,8 @@ export async function getAllVersionImages(
   recipeName: string,
   repoName: string = 'recipes'
 ): Promise<{ version: number; imageUrl: string }[]> {
-  const images = await getVersionImages(octokit, username, recipeName, repoName)
+  // Always refresh URLs for display to ensure they're valid
+  const images = await getVersionImages(octokit, username, recipeName, repoName, true)
   
   // Already sorted by version (newest first)
   return images
