@@ -103,21 +103,16 @@ export default function RecipeTimeline({ history, recipeName, onRatingUpdate }: 
     }
   }
 
-  // Get min and max ratings for scaling
-  const ratings = chronologicalHistory.map(h => h.rating).filter((r): r is number => r !== null)
-  const minRating = ratings.length > 0 ? Math.min(...ratings, 1.0) : 1.0
-  const maxRating = ratings.length > 0 ? Math.max(...ratings, 10.0) : 10.0
-  const ratingRange = maxRating - minRating || 1
-
-  // Get date range for X axis
-  const dates = chronologicalHistory.map(h => new Date(h.date).getTime())
-  const minDate = Math.min(...dates)
-  const maxDate = Math.max(...dates)
-  const dateRange = maxDate - minDate || 1
+  // Fixed Y-axis scale from 0 to 10
+  const minRating = 0
+  const maxRating = 10
+  const ratingRange = 10
 
   // Padding from edges (percentage)
   const xPadding = 10 // 10% padding on each side
   const usableWidth = 100 - (xPadding * 2) // 80% usable width
+  const yPadding = 10 // 10% padding on top and bottom
+  const usableHeight = 100 - (yPadding * 2) // 80% usable height
 
   // Calculate positions for points with even spacing (left = oldest, right = newest)
   const points = chronologicalHistory.map((item, index) => {
@@ -129,8 +124,10 @@ export default function RecipeTimeline({ history, recipeName, onRatingUpdate }: 
       // Distribute points evenly across the usable width
       x = xPadding + (index / (chronologicalHistory.length - 1)) * usableWidth
     }
-    const rating = item.rating || 5.0
-    const y = 100 - (((rating - minRating) / ratingRange) * 80) - 10 // Leave 10% margin on top and bottom
+    const rating = item.rating ?? 5.0 // Default to 5.0 if no rating
+    // Y axis: 0 at bottom, 10 at top
+    // Higher ratings should be higher on screen (lower y value in SVG coordinates)
+    const y = yPadding + ((maxRating - rating) / ratingRange) * usableHeight
     return { ...item, x, y, index }
   })
 
@@ -252,21 +249,23 @@ export default function RecipeTimeline({ history, recipeName, onRatingUpdate }: 
       
       {/* Timeline Graph - Hidden on mobile */}
       <div className="relative mb-12 hidden sm:block" style={{ minHeight: '750px' }}>
-        {/* Y-axis labels */}
-        <div className="absolute left-0 top-0 bottom-0 w-20 flex flex-col justify-between text-base text-gray-700 font-bold">
-          <span className="text-right pr-3">{maxRating.toFixed(1)}</span>
-          <span className="text-right pr-3">{((maxRating + minRating) / 2).toFixed(1)}</span>
-          <span className="text-right pr-3">{minRating.toFixed(1)}</span>
+        {/* Y-axis labels (0-10 scale) */}
+        <div className="absolute left-0 top-0 bottom-0 w-20 flex flex-col justify-between text-sm text-gray-700 font-bold py-[10%]">
+          <span className="text-right pr-3">10.0</span>
+          <span className="text-right pr-3">7.5</span>
+          <span className="text-right pr-3">5.0</span>
+          <span className="text-right pr-3">2.5</span>
+          <span className="text-right pr-3">0.0</span>
         </div>
 
         {/* Graph area */}
         <div className="ml-20 relative border-l-2 border-b-2 border-gray-900" style={{ height: '450px' }}>
-          {/* Grid lines */}
-          {[0, 25, 50, 75, 100].map((y) => (
+          {/* Grid lines - correspond to 0, 2.5, 5, 7.5, 10 on the scale */}
+          {[10, 30, 50, 70, 90].map((y) => (
             <div
               key={y}
               className="absolute w-full border-t border-gray-200"
-              style={{ bottom: `${y}%` }}
+              style={{ top: `${y}%` }}
             />
           ))}
 
