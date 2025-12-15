@@ -11,6 +11,7 @@ export interface Recipe {
   ingredients: string[]
   instructions: string[]
   images?: string[]
+  category?: string
 }
 
 export function formatRecipeToText(recipe: Recipe): string {
@@ -126,6 +127,15 @@ export async function getRecipe(octokit: Octokit, username: string, recipeName: 
         // No images folder
       }
       
+      // Get category
+      try {
+        const { getRecipeCategory } = await import('./categories')
+        const category = await getRecipeCategory(octokit, username, recipeName, repoName)
+        recipe.category = category || undefined
+      } catch {
+        // Category not available
+      }
+      
       return recipe
     }
     return null
@@ -139,35 +149,119 @@ export async function saveRecipe(
   username: string,
   recipe: Recipe,
   repoName: string = 'recipes',
-  message: string = 'Update recipe'
+  message: string = 'Update recipe',
+  oldName?: string
 ): Promise<void> {
   const recipeText = formatRecipeToText(recipe)
   const recipePath = `${recipe.name}/${recipe.name}.txt`
+  const oldPath = oldName ? `${oldName}/${oldName}.txt` : recipePath
   
-  // Get current SHA if file exists
-  let sha: string | undefined
-  try {
-    const { data } = await octokit.repos.getContent({
+  // If name changed, we need to move the file and directory
+  if (oldName && oldName !== recipe.name) {
+    // Get the old file content
+    let oldSha: string | undefined
+    try {
+      const { data } = await octokit.repos.getContent({
+        owner: username,
+        repo: repoName,
+        path: oldPath,
+      })
+      if ('sha' in data) {
+        oldSha = data.sha
+      }
+    } catch {
+      // Old file doesn't exist
+    }
+    
+    // Create new file with new name
+    await octokit.repos.createOrUpdateFileContents({
       owner: username,
       repo: repoName,
       path: recipePath,
+      message: `Rename recipe from ${oldName} to ${recipe.name}`,
+      content: Buffer.from(recipeText).toString('base64'),
     })
-    if ('sha' in data) {
-      sha = data.sha
+    
+    // Move images if they exist
+    try {
+      const imagesData = await octokit.repos.getContent({
+        owner: username,
+        repo: repoName,
+        path: `${oldName}/images`,
+      })
+      
+      if (Array.isArray(imagesData.data)) {
+        for (const image of imagesData.data) {
+          if (image.type === 'file' && 'sha' in image) {
+            // Get image content
+            const imageContent = await octokit.repos.getContent({
+              owner: username,
+              repo: repoName,
+              path: image.path,
+            })
+            
+            if ('content' in imageContent.data && imageContent.data.content) {
+              // Create in new location
+              await octokit.repos.createOrUpdateFileContents({
+                owner: username,
+                repo: repoName,
+                path: `${recipe.name}/images/${image.name}`,
+                message: `Move image for renamed recipe`,
+                content: imageContent.data.content,
+              })
+              
+              // Delete old image
+              await octokit.repos.deleteFile({
+                owner: username,
+                repo: repoName,
+                path: image.path,
+                message: `Remove image from old recipe location`,
+                sha: image.sha,
+              })
+            }
+          }
+        }
+      }
+    } catch {
+      // No images to move
     }
-  } catch {
-    // File doesn't exist, will create new
+    
+    // Delete old file
+    if (oldSha) {
+      await octokit.repos.deleteFile({
+        owner: username,
+        repo: repoName,
+        path: oldPath,
+        message: `Remove old recipe file after rename`,
+        sha: oldSha,
+      })
+    }
+  } else {
+    // Normal update - get current SHA if file exists
+    let sha: string | undefined
+    try {
+      const { data } = await octokit.repos.getContent({
+        owner: username,
+        repo: repoName,
+        path: recipePath,
+      })
+      if ('sha' in data) {
+        sha = data.sha
+      }
+    } catch {
+      // File doesn't exist, will create new
+    }
+    
+    // Save recipe file
+    await octokit.repos.createOrUpdateFileContents({
+      owner: username,
+      repo: repoName,
+      path: recipePath,
+      message: message,
+      content: Buffer.from(recipeText).toString('base64'),
+      sha: sha,
+    })
   }
-  
-  // Save recipe file
-  await octokit.repos.createOrUpdateFileContents({
-    owner: username,
-    repo: repoName,
-    path: recipePath,
-    message: message,
-    content: Buffer.from(recipeText).toString('base64'),
-    sha: sha,
-  })
 }
 
 export async function getRecipeHistory(
@@ -212,11 +306,58 @@ export async function getRecipeVersion(
     
     if ('content' in data && data.content) {
       const text = Buffer.from(data.content, 'base64').toString('utf-8')
-      return parseRecipeFromText(text)
+      const recipe = parseRecipeFromText(text)
+      
+      // Try to get images for this version
+      try {
+        const imagesData = await octokit.repos.getContent({
+          owner: username,
+          repo: repoName,
+          path: `${recipeName}/images`,
+          ref: sha,
+        })
+        
+        if (Array.isArray(imagesData.data)) {
+          recipe.images = imagesData.data
+            .filter((item: any) => item.type === 'file')
+            .map((item: any) => item.download_url)
+        }
+      } catch {
+        // No images for this version
+      }
+      
+      return recipe
     }
     return null
   } catch (error) {
     return null
+  }
+}
+
+// Get images for a specific version (or latest if sha not provided)
+export async function getRecipeImagesForVersion(
+  octokit: Octokit,
+  username: string,
+  recipeName: string,
+  sha?: string,
+  repoName: string = 'recipes'
+): Promise<string[]> {
+  try {
+    const imagesData = await octokit.repos.getContent({
+      owner: username,
+      repo: repoName,
+      path: `${recipeName}/images`,
+      ...(sha ? { ref: sha } : {}),
+    })
+    
+    if (Array.isArray(imagesData.data)) {
+      return imagesData.data
+        .filter((item: any) => item.type === 'file')
+        .map((item: any) => item.download_url)
+    }
+    return []
+  } catch {
+    return []
   }
 }
 

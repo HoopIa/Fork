@@ -2,12 +2,16 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Save } from 'lucide-react'
+import Head from 'next/head'
+import { ArrowLeft, Save, Tag, Plus, Minus } from 'lucide-react'
+import { RECIPE_CATEGORIES } from '@/lib/categories'
+import Button from '@/components/Button'
 
 export default function NewRecipe() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const [category, setCategory] = useState('')
   const [recipe, setRecipe] = useState({
     name: '',
     ingredients: [''],
@@ -89,6 +93,19 @@ export default function NewRecipe() {
       })
 
       if (res.ok) {
+        // Save category if selected
+        if (category) {
+          try {
+            await fetch(`/api/recipes/${encodeURIComponent(recipe.name)}/category`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ category }),
+            })
+          } catch (error) {
+            console.error('Error saving category:', error)
+            // Continue even if category save fails
+          }
+        }
         router.push(`/recipes/${encodeURIComponent(recipe.name)}`)
       } else {
         const error = await res.json()
@@ -103,39 +120,63 @@ export default function NewRecipe() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50">
-      <nav className="bg-white shadow-sm border-b">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center h-16 gap-4">
-            <Link
-              href="/"
-              className="text-gray-600 hover:text-gray-800"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Link>
-            <h1 className="text-xl font-bold text-gray-800">New Recipe</h1>
+    <>
+      <Head>
+        <title>New Recipe | Fork</title>
+        <meta name="description" content="Create a new recipe" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+      </Head>
+      
+      <div className="min-h-screen bg-white">
+        <nav className="bg-white border-b border-gray-100 sticky top-0 z-10 backdrop-blur-sm bg-white/95">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center h-20 gap-4">
+              <Link
+                href="/"
+                className="text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </Link>
+              <h1 className="text-2xl font-bold text-gray-900 tracking-tight">New Recipe</h1>
+            </div>
           </div>
-        </div>
-      </nav>
+        </nav>
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6">
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <form onSubmit={handleSubmit} className="bg-white border border-gray-100 p-8 sm:p-12">
+          <div className="mb-8">
+            <label className="block text-sm font-medium text-gray-900 mb-3 uppercase tracking-wide">
               Recipe Name
             </label>
             <input
               type="text"
               value={recipe.name}
               onChange={(e) => setRecipe({ ...recipe, name: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-200 focus:ring-2 focus:ring-gray-900 focus:border-transparent bg-white text-lg"
               placeholder="e.g., Chocolate Cake"
               required
             />
           </div>
 
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+          <div className="mb-8">
+            <label className="block text-sm font-medium text-gray-900 mb-3 uppercase tracking-wide flex items-center gap-2">
+              <Tag className="w-4 h-4" />
+              Category
+            </label>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-full px-4 py-3 border border-gray-200 focus:ring-2 focus:ring-gray-900 focus:border-transparent bg-white text-sm uppercase tracking-wide"
+            >
+              <option value="">Select Category (Optional)</option>
+              {RECIPE_CATEGORIES.map((cat) => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="mb-8">
+            <label className="block text-sm font-medium text-gray-900 mb-3 uppercase tracking-wide">
               Ingredients
             </label>
             {recipe.ingredients.map((ingredient, index) => (
@@ -144,7 +185,7 @@ export default function NewRecipe() {
                   type="text"
                   value={ingredient}
                   onChange={(e) => updateIngredient(index, e.target.value)}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  className="flex-1 px-4 py-3 border border-gray-200 focus:ring-2 focus:ring-gray-900 focus:border-transparent bg-white"
                   placeholder="e.g., 2 cups flour"
                 />
                 {recipe.ingredients.length > 1 && (
@@ -167,8 +208,8 @@ export default function NewRecipe() {
             </button>
           </div>
 
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+          <div className="mb-8">
+            <label className="block text-sm font-medium text-gray-900 mb-3 uppercase tracking-wide">
               Instructions
             </label>
             {recipe.instructions.map((instruction, index) => (
@@ -176,9 +217,9 @@ export default function NewRecipe() {
                 <textarea
                   value={instruction}
                   onChange={(e) => updateInstruction(index, e.target.value)}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  className="flex-1 px-4 py-3 border border-gray-200 focus:ring-2 focus:ring-gray-900 focus:border-transparent bg-white"
                   placeholder="e.g., Mix dry ingredients in a large bowl"
-                  rows={2}
+                  rows={3}
                 />
                 {recipe.instructions.length > 1 && (
                   <button
@@ -201,24 +242,24 @@ export default function NewRecipe() {
           </div>
 
           <div className="flex gap-4">
-            <button
+            <Button
               type="submit"
-              disabled={loading}
-              className="flex items-center gap-2 bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50"
+              loading={loading}
+              icon={<Save className="w-4 h-4" />}
+              size="lg"
             >
-              <Save className="w-5 h-5" />
-              {loading ? 'Saving...' : 'Create Recipe'}
-            </button>
-            <Link
-              href="/"
-              className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              Cancel
+              {loading ? 'Creating...' : 'Create Recipe'}
+            </Button>
+            <Link href="/">
+              <Button variant="secondary" size="lg">
+                Cancel
+              </Button>
             </Link>
           </div>
         </form>
       </main>
-    </div>
+      </div>
+    </>
   )
 }
 
