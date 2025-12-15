@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '../auth/[...nextauth]'
 import { getOctokit, getRecipe, saveRecipe, Recipe } from '@/lib/github'
-import { getLatestVersionImage } from '@/lib/version-images'
+import { getAllVersionImages } from '@/lib/version-images'
 
 // Helper to recursively delete all files in a directory
 async function deleteRecipeDirectory(
@@ -76,10 +76,10 @@ export default async function handler(
         return res.status(404).json({ error: 'Recipe not found' })
       }
       
-      // Get the latest version image as hero
-      const heroImage = await getLatestVersionImage(octokit, username, recipeName, repoName)
+      // Get all version images sorted by version (V3, V2, V1 order)
+      const versionImages = await getAllVersionImages(octokit, username, recipeName, repoName)
       
-      return res.status(200).json({ recipe, heroImage })
+      return res.status(200).json({ recipe, versionImages })
     }
     
     if (req.method === 'POST' || req.method === 'PUT') {

@@ -8,7 +8,7 @@ export interface VersionImage {
   uploadedAt: string
 }
 
-// Get version images metadata
+// Get version images metadata (deduplicated, most recent upload wins)
 export async function getVersionImages(
   octokit: Octokit,
   username: string,
@@ -24,7 +24,26 @@ export async function getVersionImages(
     
     if ('content' in data && data.content) {
       const content = Buffer.from(data.content, 'base64').toString('utf-8')
-      return JSON.parse(content)
+      const allImages: VersionImage[] = JSON.parse(content)
+      
+      // Deduplicate: if multiple images for same version/sha, keep most recent
+      const imageMap = new Map<string, VersionImage>()
+      
+      // Sort by uploadedAt ascending so later entries overwrite earlier ones
+      const sorted = [...allImages].sort((a, b) => 
+        new Date(a.uploadedAt || 0).getTime() - new Date(b.uploadedAt || 0).getTime()
+      )
+      
+      for (const img of sorted) {
+        // Key by SHA to ensure uniqueness per version commit
+        imageMap.set(img.sha, img)
+      }
+      
+      // Convert back to array and sort by version (newest version first)
+      const deduplicated = Array.from(imageMap.values())
+      deduplicated.sort((a, b) => b.version - a.version)
+      
+      return deduplicated
     }
   } catch {
     // File doesn't exist
@@ -200,5 +219,23 @@ export async function getLatestVersionImage(
   }
   
   return null
+}
+
+// Get all version images sorted by version (newest first: V3, V2, V1)
+export async function getAllVersionImages(
+  octokit: Octokit,
+  username: string,
+  recipeName: string,
+  repoName: string = 'recipes'
+): Promise<{ version: number; imageUrl: string }[]> {
+  const images = await getVersionImages(octokit, username, recipeName, repoName)
+  
+  // Already sorted by version (newest first)
+  return images
+    .filter(img => img.imageUrl) // Only return images with valid URLs
+    .map(img => ({
+      version: img.version,
+      imageUrl: img.imageUrl,
+    }))
 }
 
