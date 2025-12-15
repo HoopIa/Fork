@@ -3,6 +3,56 @@ import { getServerSession } from 'next-auth/next'
 import { authOptions } from '../auth/[...nextauth]'
 import { getOctokit, getRecipe, saveRecipe, Recipe } from '@/lib/github'
 
+// Helper to recursively delete all files in a directory
+async function deleteRecipeDirectory(
+  octokit: ReturnType<typeof getOctokit>,
+  username: string,
+  recipeName: string,
+  repoName: string
+): Promise<void> {
+  // Get all files in the recipe directory
+  const { data } = await octokit.repos.getContent({
+    owner: username,
+    repo: repoName,
+    path: recipeName,
+  })
+
+  if (Array.isArray(data)) {
+    for (const item of data) {
+      if (item.type === 'dir') {
+        // Recursively get files in subdirectory
+        const { data: subData } = await octokit.repos.getContent({
+          owner: username,
+          repo: repoName,
+          path: item.path,
+        })
+        
+        if (Array.isArray(subData)) {
+          for (const subItem of subData) {
+            if (subItem.type === 'file' && 'sha' in subItem) {
+              await octokit.repos.deleteFile({
+                owner: username,
+                repo: repoName,
+                path: subItem.path,
+                message: `Delete ${recipeName}`,
+                sha: subItem.sha,
+              })
+            }
+          }
+        }
+      } else if (item.type === 'file' && 'sha' in item) {
+        await octokit.repos.deleteFile({
+          owner: username,
+          repo: repoName,
+          path: item.path,
+          message: `Delete ${recipeName}`,
+          sha: item.sha,
+        })
+      }
+    }
+  }
+}
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -30,7 +80,13 @@ export default async function handler(
     if (req.method === 'POST' || req.method === 'PUT') {
       const recipe: Recipe = req.body
       const message = req.body.commitMessage || `Update ${recipe.name} recipe`
-      await saveRecipe(octokit, username, recipe, repoName, message)
+      const oldName = req.body.oldName || recipeName
+      await saveRecipe(octokit, username, recipe, repoName, message, oldName)
+      return res.status(200).json({ success: true, newName: recipe.name })
+    }
+    
+    if (req.method === 'DELETE') {
+      await deleteRecipeDirectory(octokit, username, recipeName, repoName)
       return res.status(200).json({ success: true })
     }
     

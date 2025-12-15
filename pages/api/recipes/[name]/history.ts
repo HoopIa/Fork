@@ -1,7 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { getServerSession } from 'next-auth/next'
-import { authOptions } from '../auth/[...nextauth]'
+import { authOptions } from '../../auth/[...nextauth]'
 import { getOctokit, getRecipeHistory, getRecipeVersion } from '@/lib/github'
+import { getRatings } from '@/lib/ratings'
+import { getVersionImages } from '@/lib/version-images'
 
 export default async function handler(
   req: NextApiRequest,
@@ -30,9 +32,26 @@ export default async function handler(
         }
         return res.status(200).json({ recipe })
       } else {
-        // Get history
+        // Get history with version numbers
         const history = await getRecipeHistory(octokit, username, recipeName, repoName)
-        return res.status(200).json({ history })
+        const ratings = await getRatings(octokit, username, recipeName, repoName)
+        const versionImages = await getVersionImages(octokit, username, recipeName, repoName)
+        
+        // Add version numbers, ratings, and version-specific images
+        const historyWithVersions = history.map((commit, index) => {
+          const version = history.length - index
+          const rating = ratings.find(r => r.sha === commit.sha)
+          const versionImage = versionImages.find(img => img.sha === commit.sha)
+          
+          return {
+            ...commit,
+            version,
+            rating: rating?.rating || null,
+            image: versionImage?.imageUrl || null, // Single version-specific image
+          }
+        })
+        
+        return res.status(200).json({ history: historyWithVersions })
       }
     }
     

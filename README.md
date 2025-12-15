@@ -1,4 +1,4 @@
-# Recipe Tracker
+# Fork
 
 A web application for tracking cooking recipes as they evolve over time, with version history stored in GitHub.
 
@@ -10,6 +10,9 @@ A web application for tracking cooking recipes as they evolve over time, with ve
 - 📚 **Recipe Book** - Organize all your recipes in one place
 - 📊 **Version History** - Track changes to recipes over time using Git commits
 - 💾 **GitHub Storage** - All recipes are stored in a private GitHub repository
+- 🔢 **Recipe Scaling** - Scale recipes to any number of servings
+- 📏 **Unit Conversion** - Switch between metric and imperial measurements
+- 🌐 **Import from Web** - Import recipes from any webpage using AI
 
 ## Getting Started
 
@@ -29,7 +32,7 @@ A web application for tracking cooking recipes as they evolve over time, with ve
 2. **Create a GitHub OAuth App:**
    - Go to [GitHub Developer Settings](https://github.com/settings/developers)
    - Click "New OAuth App"
-   - Set Application name: "Recipe Tracker" (or any name)
+   - Set Application name: "Fork" (or any name)
    - Set Homepage URL: `http://localhost:3000` (for development)
    - Set Authorization callback URL: `http://localhost:3000/api/auth/callback/github`
    - Click "Register application"
@@ -43,12 +46,15 @@ A web application for tracking cooking recipes as they evolve over time, with ve
    NEXTAUTH_URL=http://localhost:3000
    NEXTAUTH_SECRET=your_random_secret_here
    GITHUB_REPO_NAME=recipes
+   OPENAI_API_KEY=your_openai_api_key
    ```
    
    Generate a random secret for `NEXTAUTH_SECRET`:
    ```bash
    openssl rand -base64 32
    ```
+   
+   Get an OpenAI API key from [OpenAI Platform](https://platform.openai.com/api-keys) (required for importing recipes from URLs).
 
 4. **Run the development server:**
    ```bash
