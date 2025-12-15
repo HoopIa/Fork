@@ -37,11 +37,17 @@ export default async function handler(
         const ratings = await getRatings(octokit, username, recipeName, repoName)
         const versionImages = await getVersionImages(octokit, username, recipeName, repoName)
         
+        // Debug logging
+        console.log('History SHAs:', history.map(h => h.sha))
+        console.log('Version Images:', versionImages.map(v => ({ sha: v.sha, version: v.version })))
+        
         // Add version numbers, ratings, and version-specific images
         const historyWithVersions = history.map((commit, index) => {
           const version = history.length - index
           const rating = ratings.find(r => r.sha === commit.sha)
           const versionImage = versionImages.find(img => img.sha === commit.sha)
+          
+          console.log(`Version ${version}: commit.sha=${commit.sha}, matched image:`, versionImage?.imageUrl ? 'yes' : 'no')
           
           return {
             ...commit,

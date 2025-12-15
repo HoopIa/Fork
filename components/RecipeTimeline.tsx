@@ -285,7 +285,7 @@ export default function RecipeTimeline({ history, recipeName, onRatingUpdate }: 
                   {/* Image with upload capability */}
                   <div className="mb-3 relative group">
                     {point.image ? (
-                      <div className="w-28 h-28 rounded-full overflow-hidden border-3 border-gray-900 shadow-md">
+                      <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-gray-900 shadow-md">
                         <img
                           src={point.image}
                           alt={`Version ${point.version}`}
@@ -293,7 +293,7 @@ export default function RecipeTimeline({ history, recipeName, onRatingUpdate }: 
                         />
                       </div>
                     ) : (
-                      <div className="w-28 h-28 rounded-full bg-gray-100 border-3 border-gray-300 flex items-center justify-center">
+                      <div className="w-28 h-28 rounded-full bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center">
                         <Camera className="w-6 h-6 text-gray-400" />
                       </div>
                     )}
@@ -320,7 +320,7 @@ export default function RecipeTimeline({ history, recipeName, onRatingUpdate }: 
                         capture="environment"
                         className="hidden"
                         disabled={isUploading}
-                        ref={el => fileInputRefs.current[point.sha] = el}
+                        ref={(el) => { fileInputRefs.current[point.sha] = el }}
                         onChange={(e) => {
                           const file = e.target.files?.[0]
                           if (file) handleImageUpload(point, file)
