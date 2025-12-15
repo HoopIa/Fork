@@ -143,8 +143,8 @@ export default function RecipeTimeline({ history, recipeName, onRatingUpdate }: 
     <div className="bg-white border border-gray-100 p-8">
       <h2 className="text-3xl font-bold text-gray-900 mb-8 tracking-tight">Recipe Evolution Timeline</h2>
       
-      {/* Timeline Graph */}
-      <div className="relative mb-12" style={{ minHeight: '750px' }}>
+      {/* Timeline Graph - Hidden on mobile */}
+      <div className="relative mb-12 hidden sm:block" style={{ minHeight: '750px' }}>
         {/* Y-axis labels */}
         <div className="absolute left-0 top-0 bottom-0 w-20 flex flex-col justify-between text-base text-gray-700 font-bold">
           <span className="text-right pr-3">{maxRating.toFixed(1)}</span>
@@ -265,8 +265,9 @@ export default function RecipeTimeline({ history, recipeName, onRatingUpdate }: 
         </div>
 
         {/* Bottom section with images, dates, and descriptions */}
-        <div className="ml-20 mt-8 pr-4">
-          <div className="relative" style={{ minHeight: '320px', width: '100%' }}>
+        {/* Desktop: absolute positioned, Mobile: horizontal scroll */}
+        <div className="ml-0 sm:ml-20 mt-8 pr-4 overflow-x-auto">
+          <div className="flex sm:relative gap-4 sm:gap-0 pb-4 sm:pb-0" style={{ minHeight: '320px' }}>
             {points.map((point, index) => {
               const date = new Date(point.date)
               const isUploading = uploadingImage === point.sha
@@ -274,7 +275,7 @@ export default function RecipeTimeline({ history, recipeName, onRatingUpdate }: 
               return (
                 <div
                   key={point.sha}
-                  className="absolute flex flex-col items-center text-center"
+                  className="flex-shrink-0 sm:absolute flex flex-col items-center text-center"
                   style={{ 
                     left: `${point.x}%`, 
                     top: 0, 
@@ -387,41 +388,48 @@ export default function RecipeTimeline({ history, recipeName, onRatingUpdate }: 
         {history.map((item) => (
           <div
             key={item.sha}
-            className="flex items-center justify-between p-5 border border-gray-100 hover:border-gray-300 transition-colors"
+            className="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-5 border border-gray-100 hover:border-gray-300 transition-colors gap-3"
           >
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <div className="flex items-center gap-3 mb-1">
-                <span className="text-sm font-semibold text-orange-600">v{item.version}</span>
-                <p className="text-sm font-medium text-gray-900">{item.message}</p>
+                <span className="text-sm font-semibold text-orange-600 flex-shrink-0">v{item.version}</span>
+                <p className="text-sm font-medium text-gray-900 truncate">{item.message}</p>
               </div>
               <p className="text-xs text-gray-500">
-                {new Date(item.date).toLocaleString()} • {item.author}
+                {new Date(item.date).toLocaleDateString()} • {item.author}
               </p>
             </div>
             <div className="flex items-center gap-2">
               {editingRating === item.sha ? (
-                <div className="flex items-center gap-2">
-                  <input
-                    type="number"
-                    min="1.0"
-                    max="10.0"
-                    step="0.1"
-                    value={ratingValue}
-                    onChange={(e) => setRatingValue(parseFloat(e.target.value) || 5.0)}
-                    className="w-20 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-orange-500"
-                  />
-                  <button
-                    onClick={() => handleRatingSave(item.sha, item.version)}
-                    className="px-4 py-1.5 text-sm bg-gray-900 text-white hover:bg-gray-800 font-medium uppercase tracking-wide"
-                  >
-                    Save
-                  </button>
-                  <button
-                    onClick={() => setEditingRating(null)}
-                    className="px-4 py-1.5 text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 font-medium uppercase tracking-wide"
-                  >
-                    Cancel
-                  </button>
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="range"
+                      min="0"
+                      max="10"
+                      step="0.5"
+                      value={ratingValue}
+                      onChange={(e) => setRatingValue(parseFloat(e.target.value))}
+                      className="w-24 sm:w-20 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-yellow-500"
+                    />
+                    <span className="text-sm font-bold text-gray-900 min-w-[2.5rem] text-center">
+                      {ratingValue.toFixed(1)}
+                    </span>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleRatingSave(item.sha, item.version)}
+                      className="flex-1 sm:flex-none px-4 py-2 text-sm bg-gray-900 text-white hover:bg-gray-800 font-medium uppercase tracking-wide rounded"
+                    >
+                      Save
+                    </button>
+                    <button
+                      onClick={() => setEditingRating(null)}
+                      className="flex-1 sm:flex-none px-4 py-2 text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 font-medium uppercase tracking-wide rounded"
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <button

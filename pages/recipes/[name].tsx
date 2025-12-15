@@ -31,6 +31,7 @@ export default function RecipePage() {
   const [loadingCategory, setLoadingCategory] = useState(true)
   const [showCommitModal, setShowCommitModal] = useState(false)
   const [commitMessage, setCommitMessage] = useState('')
+  const [heroImage, setHeroImage] = useState<string | null>(null)
 
   useEffect(() => {
     if (name && status === 'authenticated') {
@@ -82,6 +83,7 @@ export default function RecipePage() {
       if (res.ok) {
         const data = await res.json()
         setRecipe(data.recipe)
+        setHeroImage(data.heroImage || null)
         // Try to extract original servings from recipe name or set default
         setOriginalServings(4)
         setServings(4)
@@ -436,6 +438,19 @@ export default function RecipePage() {
       </nav>
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Hero Image */}
+        {heroImage && (
+          <div className="mb-6 -mx-4 sm:mx-0">
+            <div className="aspect-[16/9] sm:aspect-[21/9] overflow-hidden sm:rounded-lg">
+              <img
+                src={heroImage}
+                alt={recipe.name}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+        )}
+
         <div className="bg-white border border-gray-100 p-8 sm:p-12">
           {/* Category */}
           <div className="mb-8 pb-6 border-b border-gray-100">
