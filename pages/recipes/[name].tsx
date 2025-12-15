@@ -31,7 +31,7 @@ export default function RecipePage() {
   const [loadingCategory, setLoadingCategory] = useState(true)
   const [showCommitModal, setShowCommitModal] = useState(false)
   const [commitMessage, setCommitMessage] = useState('')
-  const [heroImage, setHeroImage] = useState<string | null>(null)
+  const [versionImages, setVersionImages] = useState<{ version: number; imageUrl: string }[]>([])
 
   useEffect(() => {
     if (name && status === 'authenticated') {
@@ -83,7 +83,7 @@ export default function RecipePage() {
       if (res.ok) {
         const data = await res.json()
         setRecipe(data.recipe)
-        setHeroImage(data.heroImage || null)
+        setVersionImages(data.versionImages || [])
         // Try to extract original servings from recipe name or set default
         setOriginalServings(4)
         setServings(4)
@@ -438,16 +438,38 @@ export default function RecipePage() {
       </nav>
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Hero Image */}
-        {heroImage && (
+        {/* Version Images Gallery */}
+        {versionImages.length > 0 && (
           <div className="mb-6 -mx-4 sm:mx-0">
-            <div className="aspect-[16/9] sm:aspect-[21/9] overflow-hidden sm:rounded-lg">
+            {/* Hero - Latest Version */}
+            <div className="aspect-[16/9] sm:aspect-[21/9] overflow-hidden sm:rounded-t-lg">
               <img
-                src={heroImage}
-                alt={recipe.name}
+                src={versionImages[0].imageUrl}
+                alt={`${recipe.name} - Version ${versionImages[0].version}`}
                 className="w-full h-full object-cover"
               />
             </div>
+            
+            {/* Thumbnail strip for other versions */}
+            {versionImages.length > 1 && (
+              <div className="flex gap-1 p-2 bg-gray-100 sm:rounded-b-lg overflow-x-auto">
+                {versionImages.map((img, index) => (
+                  <div 
+                    key={img.version}
+                    className={`flex-shrink-0 relative ${index === 0 ? 'ring-2 ring-gray-900' : ''}`}
+                  >
+                    <img
+                      src={img.imageUrl}
+                      alt={`Version ${img.version}`}
+                      className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded"
+                    />
+                    <span className="absolute bottom-1 left-1 px-1.5 py-0.5 bg-black/70 text-white text-[10px] font-bold rounded">
+                      v{img.version}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 

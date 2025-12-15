@@ -23,6 +23,10 @@ export default function RecipeTimeline({ history, recipeName, onRatingUpdate }: 
   const [uploadingImage, setUploadingImage] = useState<string | null>(null)
   const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({})
 
+  // Sort history chronologically (oldest first, newest last)
+  // History comes in with newest first, so we reverse it
+  const chronologicalHistory = [...history].reverse()
+
   const handleImageUpload = async (item: HistoryItem, file: File) => {
     if (!file) return
     
@@ -100,13 +104,13 @@ export default function RecipeTimeline({ history, recipeName, onRatingUpdate }: 
   }
 
   // Get min and max ratings for scaling
-  const ratings = history.map(h => h.rating).filter((r): r is number => r !== null)
+  const ratings = chronologicalHistory.map(h => h.rating).filter((r): r is number => r !== null)
   const minRating = ratings.length > 0 ? Math.min(...ratings, 1.0) : 1.0
   const maxRating = ratings.length > 0 ? Math.max(...ratings, 10.0) : 10.0
   const ratingRange = maxRating - minRating || 1
 
   // Get date range for X axis
-  const dates = history.map(h => new Date(h.date).getTime())
+  const dates = chronologicalHistory.map(h => new Date(h.date).getTime())
   const minDate = Math.min(...dates)
   const maxDate = Math.max(...dates)
   const dateRange = maxDate - minDate || 1
@@ -115,15 +119,15 @@ export default function RecipeTimeline({ history, recipeName, onRatingUpdate }: 
   const xPadding = 10 // 10% padding on each side
   const usableWidth = 100 - (xPadding * 2) // 80% usable width
 
-  // Calculate positions for points with even spacing
-  const points = history.map((item, index) => {
+  // Calculate positions for points with even spacing (left = oldest, right = newest)
+  const points = chronologicalHistory.map((item, index) => {
     let x: number
-    if (history.length === 1) {
+    if (chronologicalHistory.length === 1) {
       // Single point goes in the center
       x = 50
     } else {
       // Distribute points evenly across the usable width
-      x = xPadding + (index / (history.length - 1)) * usableWidth
+      x = xPadding + (index / (chronologicalHistory.length - 1)) * usableWidth
     }
     const rating = item.rating || 5.0
     const y = 100 - (((rating - minRating) / ratingRange) * 80) - 10 // Leave 10% margin on top and bottom
@@ -143,10 +147,10 @@ export default function RecipeTimeline({ history, recipeName, onRatingUpdate }: 
     <div className="bg-white border border-gray-100 p-4 sm:p-8">
       <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8 tracking-tight">Recipe Evolution Timeline</h2>
       
-      {/* Mobile Version Cards - Visible only on mobile */}
+      {/* Mobile Version Cards - Visible only on mobile (chronological: oldest first) */}
       <div className="sm:hidden mb-8">
         <div className="flex overflow-x-auto gap-4 pb-4 -mx-4 px-4 snap-x snap-mandatory">
-          {history.map((item) => {
+          {chronologicalHistory.map((item) => {
             const date = new Date(item.date)
             const isUploading = uploadingImage === item.sha
             
@@ -484,10 +488,10 @@ export default function RecipeTimeline({ history, recipeName, onRatingUpdate }: 
         </div>
       </div>
 
-      {/* History list with ratings */}
+      {/* History list with ratings (chronological: oldest first) */}
       <div className="space-y-3">
         <h3 className="text-xl font-bold text-gray-900 mb-6 tracking-tight">Version History</h3>
-        {history.map((item) => (
+        {chronologicalHistory.map((item) => (
           <div
             key={item.sha}
             className="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-5 border border-gray-100 hover:border-gray-300 transition-colors gap-3"
