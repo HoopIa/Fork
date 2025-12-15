@@ -279,21 +279,19 @@ export async function getLatestVersionImage(
 }
 
 // Get all version images sorted by version (newest first: V3, V2, V1)
+// Returns proxy URLs for private repo support
 export async function getAllVersionImages(
   octokit: Octokit,
   username: string,
   recipeName: string,
   repoName: string = 'recipes'
 ): Promise<{ version: number; imageUrl: string }[]> {
-  // Always refresh URLs for display to ensure they're valid
-  const images = await getVersionImages(octokit, username, recipeName, repoName, true)
+  const images = await getVersionImages(octokit, username, recipeName, repoName, false)
   
-  // Already sorted by version (newest first)
-  return images
-    .filter(img => img.imageUrl) // Only return images with valid URLs
-    .map(img => ({
-      version: img.version,
-      imageUrl: img.imageUrl,
-    }))
+  // Return proxy URLs instead of raw GitHub URLs for private repo support
+  return images.map(img => ({
+    version: img.version,
+    imageUrl: `/api/recipes/${encodeURIComponent(recipeName)}/image?version=${img.version}`,
+  }))
 }
 

@@ -79,74 +79,14 @@ export async function saveRecipeCategory(
   })
 }
 
-// Get the most recent version image for a recipe (thumbnail)
-async function getRecipeThumbnail(
+// Check if a recipe has any images (version-images or legacy images folder)
+async function hasRecipeImages(
   octokit: Octokit,
   username: string,
   recipeName: string,
   repoName: string
-): Promise<string | null> {
-  // Try metadata file first
-  try {
-    const { data: versionImagesData } = await octokit.repos.getContent({
-      owner: username,
-      repo: repoName,
-      path: `${recipeName}/.version-images.json`,
-    })
-    
-    if ('content' in versionImagesData && versionImagesData.content) {
-      const content = Buffer.from(versionImagesData.content, 'base64').toString('utf-8')
-      const allImages = JSON.parse(content) as Array<{
-        sha: string
-        version: number
-        imagePath: string
-        imageUrl: string
-        uploadedAt?: string
-      }>
-      
-      if (allImages.length > 0) {
-        // Deduplicate: if multiple images for same version, keep most recent upload
-        const imageMap = new Map<string, typeof allImages[0]>()
-        
-        // Sort by uploadedAt ascending so later entries overwrite earlier ones
-        const sorted = [...allImages].sort((a, b) => 
-          new Date(a.uploadedAt || 0).getTime() - new Date(b.uploadedAt || 0).getTime()
-        )
-        
-        for (const img of sorted) {
-          imageMap.set(img.sha, img)
-        }
-        
-        // Get deduplicated images and sort by version (highest first)
-        const deduplicated = Array.from(imageMap.values())
-        deduplicated.sort((a, b) => b.version - a.version)
-        
-        // Get fresh URL for the most recent version
-        if (deduplicated.length > 0) {
-          const latestImage = deduplicated[0]
-          try {
-            const { data: fileData } = await octokit.repos.getContent({
-              owner: username,
-              repo: repoName,
-              path: latestImage.imagePath,
-            })
-            if ('download_url' in fileData && fileData.download_url) {
-              return fileData.download_url
-            }
-          } catch {
-            // Image file doesn't exist, try stored URL
-            if (latestImage.imageUrl) {
-              return latestImage.imageUrl
-            }
-          }
-        }
-      }
-    }
-  } catch {
-    // No version images metadata
-  }
-  
-  // Fallback: scan version-images folder directly
+): Promise<boolean> {
+  // Check version-images folder
   try {
     const { data: folderData } = await octokit.repos.getContent({
       owner: username,
@@ -155,42 +95,44 @@ async function getRecipeThumbnail(
     })
     
     if (Array.isArray(folderData) && folderData.length > 0) {
-      // Sort by version number (extract from filename like "v1-image.jpg")
-      const imageFiles = folderData
-        .filter((item: any) => item.type === 'file' && item.name.match(/^v\d+-/))
-        .map((item: any) => {
-          const versionMatch = item.name.match(/^v(\d+)-/)
-          return {
-            version: versionMatch ? parseInt(versionMatch[1], 10) : 0,
-            downloadUrl: item.download_url,
-          }
-        })
-        .sort((a, b) => b.version - a.version)
-      
-      if (imageFiles.length > 0 && imageFiles[0].downloadUrl) {
-        return imageFiles[0].downloadUrl
-      }
+      return folderData.some((file: any) => 
+        file.type === 'file' && file.name.match(/^v\d+-/)
+      )
     }
   } catch {
     // No version-images folder
   }
   
-  // Fall back to regular images folder
+  // Check legacy images folder
   try {
-    const { data } = await octokit.repos.getContent({
+    const { data: imagesData } = await octokit.repos.getContent({
       owner: username,
       repo: repoName,
       path: `${recipeName}/images`,
     })
     
-    if (Array.isArray(data) && data.length > 0) {
-      const firstImage = data.find((item: any) => item.type === 'file')
-      if (firstImage && 'download_url' in firstImage) {
-        return firstImage.download_url
-      }
+    if (Array.isArray(imagesData) && imagesData.length > 0) {
+      return imagesData.some((item: any) => item.type === 'file')
     }
   } catch {
     // No images folder
+  }
+  
+  return false
+}
+
+// Get the thumbnail URL for a recipe (uses proxy API)
+async function getRecipeThumbnail(
+  octokit: Octokit,
+  username: string,
+  recipeName: string,
+  repoName: string
+): Promise<string | null> {
+  const hasImages = await hasRecipeImages(octokit, username, recipeName, repoName)
+  
+  if (hasImages) {
+    // Return proxy URL - the thumbnail API handles finding the right image
+    return `/api/recipes/${encodeURIComponent(recipeName)}/thumbnail`
   }
   
   return null
