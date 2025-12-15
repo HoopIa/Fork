@@ -28,53 +28,79 @@ export default async function handler(
   }
   
   try {
-    console.log(`[Image] Looking for version ${version} image for recipe: ${recipeName}`)
-    console.log(`[Image] Repo: ${username}/${repoName}`)
-    
     // Try to find image in version-images folder
     const { data: folderData } = await octokit.repos.getContent({
       owner: username,
       repo: repoName,
       path: `${recipeName}/version-images`,
     })
-    console.log(`[Image] Found folder with ${Array.isArray(folderData) ? folderData.length : 0} items`)
     
     if (Array.isArray(folderData)) {
-      // Find image for this version
-      const imageFile = folderData.find((file: any) => 
-        file.type === 'file' && file.name.startsWith(`v${version}-`)
-      )
+      // Find all images for this version and pick the most recent (highest timestamp)
+      const versionImages = folderData
+        .filter((file: any) => file.type === 'file' && file.name.startsWith(`v${version}-`))
+        .sort((a: any, b: any) => {
+          // Extract timestamp from filename (e.g., v1-1765771961985-image.jpg)
+          const tsA = parseInt(a.name.match(/v\d+-(\d+)/)?.[1] || '0', 10)
+          const tsB = parseInt(b.name.match(/v\d+-(\d+)/)?.[1] || '0', 10)
+          return tsB - tsA // Most recent first
+        })
+      
+      const imageFile = versionImages[0]
       
       if (imageFile) {
-        // Fetch the actual image content
-        const { data: fileData } = await octokit.repos.getContent({
-          owner: username,
-          repo: repoName,
-          path: `${recipeName}/version-images/${imageFile.name}`,
-        })
+        // Determine content type from filename
+        const ext = imageFile.name.split('.').pop()?.toLowerCase()
+        const contentType = ext === 'png' ? 'image/png' 
+          : ext === 'gif' ? 'image/gif'
+          : ext === 'webp' ? 'image/webp'
+          : 'image/jpeg'
         
-        if ('content' in fileData && fileData.content) {
-          // Determine content type from filename
-          const ext = imageFile.name.split('.').pop()?.toLowerCase()
-          const contentType = ext === 'png' ? 'image/png' 
-            : ext === 'gif' ? 'image/gif'
-            : ext === 'webp' ? 'image/webp'
-            : 'image/jpeg'
+        // For large files (>1MB), GitHub doesn't return content inline
+        // We need to use the download_url with authentication
+        if (imageFile.download_url) {
+          // Fetch the image using the authenticated token
+          const response = await fetch(imageFile.download_url, {
+            headers: {
+              'Authorization': `token ${session.accessToken}`,
+              'Accept': 'application/vnd.github.v3.raw',
+            },
+          })
           
-          // Send as base64 image
-          const buffer = Buffer.from(fileData.content, 'base64')
-          res.setHeader('Content-Type', contentType)
-          res.setHeader('Cache-Control', 'public, max-age=31536000, immutable')
-          return res.send(buffer)
+          if (response.ok) {
+            const arrayBuffer = await response.arrayBuffer()
+            const buffer = Buffer.from(arrayBuffer)
+            
+            res.setHeader('Content-Type', contentType)
+            res.setHeader('Cache-Control', 'public, max-age=3600')
+            return res.send(buffer)
+          }
+        }
+        
+        // Fallback: try to get content directly (for small files)
+        try {
+          const { data: fileData } = await octokit.repos.getContent({
+            owner: username,
+            repo: repoName,
+            path: `${recipeName}/version-images/${imageFile.name}`,
+          })
+          
+          if ('content' in fileData && fileData.content) {
+            const buffer = Buffer.from(fileData.content, 'base64')
+            res.setHeader('Content-Type', contentType)
+            res.setHeader('Cache-Control', 'public, max-age=3600')
+            return res.send(buffer)
+          }
+        } catch {
+          // Content not available inline
         }
       }
     }
     
-    console.log(`[Image] No image found for version ${version}`)
     return res.status(404).json({ error: 'Image not found' })
   } catch (error: any) {
-    console.error('[Image] Error fetching image:', error.message, error.status)
-    return res.status(404).json({ error: 'Image not found', details: error.message })
+    console.error('[Image] Error:', error.message)
+    return res.status(404).json({ error: 'Image not found' })
   }
 }
 
