@@ -35,12 +35,13 @@ export default async function handler(
         // Get history with version numbers
         const history = await getRecipeHistory(octokit, username, recipeName, repoName)
         const ratings = await getRatings(octokit, username, recipeName, repoName)
-        // Refresh URLs to ensure they're valid
-        const versionImages = await getVersionImages(octokit, username, recipeName, repoName, true)
+        // Get version images (don't refresh URLs, we use proxy anyway)
+        const versionImages = await getVersionImages(octokit, username, recipeName, repoName, false)
         
         // Debug logging
-        console.log('History SHAs:', history.map(h => h.sha))
-        console.log('Version Images:', versionImages.map(v => ({ sha: v.sha, version: v.version })))
+        console.log(`[History] Recipe: ${recipeName}`)
+        console.log(`[History] Found ${history.length} commits, ${versionImages.length} version images`)
+        console.log('[History] Version Images:', JSON.stringify(versionImages.map(v => ({ version: v.version, path: v.imagePath }))))
         
         // Add version numbers, ratings, and version-specific images
         const historyWithVersions = history.map((commit, index) => {
