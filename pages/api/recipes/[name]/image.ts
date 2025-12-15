@@ -28,12 +28,16 @@ export default async function handler(
   }
   
   try {
+    console.log(`[Image] Looking for version ${version} image for recipe: ${recipeName}`)
+    console.log(`[Image] Repo: ${username}/${repoName}`)
+    
     // Try to find image in version-images folder
     const { data: folderData } = await octokit.repos.getContent({
       owner: username,
       repo: repoName,
       path: `${recipeName}/version-images`,
     })
+    console.log(`[Image] Found folder with ${Array.isArray(folderData) ? folderData.length : 0} items`)
     
     if (Array.isArray(folderData)) {
       // Find image for this version
@@ -66,10 +70,11 @@ export default async function handler(
       }
     }
     
+    console.log(`[Image] No image found for version ${version}`)
     return res.status(404).json({ error: 'Image not found' })
   } catch (error: any) {
-    console.error('Error fetching image:', error.message)
-    return res.status(404).json({ error: 'Image not found' })
+    console.error('[Image] Error fetching image:', error.message, error.status)
+    return res.status(404).json({ error: 'Image not found', details: error.message })
   }
 }
 

@@ -23,13 +23,18 @@ export default async function handler(
   const recipeName = req.query.name as string
   
   try {
+    console.log(`[Thumbnail] Looking for images for recipe: ${recipeName}`)
+    console.log(`[Thumbnail] Repo: ${username}/${repoName}`)
+    
     // Try version-images folder first
     try {
+      console.log(`[Thumbnail] Checking path: ${recipeName}/version-images`)
       const { data: folderData } = await octokit.repos.getContent({
         owner: username,
         repo: repoName,
         path: `${recipeName}/version-images`,
       })
+      console.log(`[Thumbnail] Found folder with ${Array.isArray(folderData) ? folderData.length : 0} items`)
       
       if (Array.isArray(folderData) && folderData.length > 0) {
         // Sort by version number to get latest
@@ -68,8 +73,8 @@ export default async function handler(
           }
         }
       }
-    } catch {
-      // No version-images folder
+    } catch (err: any) {
+      console.log(`[Thumbnail] No version-images folder: ${err.message}`)
     }
     
     // Fallback: try regular images folder
